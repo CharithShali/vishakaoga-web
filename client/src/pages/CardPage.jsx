@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { api } from '../api.js';
 import MemberCard from '../components/MemberCard.jsx';
+import { drawCardPng } from '../utils/cardImage.js';
 
 export default function CardPage() {
   const [member, setMember] = useState(null);
   const [qr, setQr] = useState('');
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api('/members/me')
@@ -18,7 +20,7 @@ export default function CardPage() {
   useEffect(() => {
     if (!member?.memberNo) return;
     QRCode.toDataURL(member.memberNo, {
-      width: 320,
+      width: 400,
       margin: 1,
       color: { dark: '#0E1D38', light: '#FFFFFF' },
     })
@@ -26,14 +28,36 @@ export default function CardPage() {
       .catch(() => setQr(''));
   }, [member]);
 
-  if (error) return <p className="container page alert alert-error">{error}</p>;
-  if (!member) return <p className="container page muted">Loading your card…</p>;
+  async function saveCard() {
+    setSaving(true);
+    setError('');
+    try {
+      // The photo comes through our own server so the browser lets us draw it.
+      const blob = await drawCardPng(member, member.photoUrl ? '/api/members/me/photo' : null, qr);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${member.memberNo || 'membership-card'}.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!member) {
+    return error
+      ? <p className="container page alert alert-error">{error}</p>
+      : <p className="container page muted">Loading your card…</p>;
+  }
 
   return (
     <div className="container page card-page">
       <div className="no-print">
         <h1>Your membership card</h1>
-        <p className="muted">Show it at events in any of the three cities. A screenshot works too.</p>
+        <p className="muted">Show it at events in any of the three cities.</p>
       </div>
 
       <div className="card-page-row">
@@ -50,17 +74,18 @@ export default function CardPage() {
         />
 
         <div className="card-actions no-print">
-          <button type="button" className="btn btn-navy btn-lg" onClick={() => window.print()}>
+          {member.memberNo && (
+            <button type="button" className="btn btn-navy btn-lg" onClick={saveCard} disabled={saving || !qr}>
+              {saving ? 'Saving…' : 'Save card to my phone'}
+            </button>
+          )}
+          <button type="button" className="btn btn-lg" onClick={() => window.print()}>
             Print card
           </button>
-          {qr && (
-            <a className="btn btn-lg" href={qr} download={`${member.memberNo}.png`}>
-              Save QR code
-            </a>
-          )}
+          {error && <p className="alert alert-error" role="alert">{error}</p>}
           <p className="muted small">
-            On a phone, take a screenshot of the card to keep it in your photos. The QR code
-            holds only your member number.
+            "Save card" downloads the card as a picture you can keep in your photos.
+            The QR code holds only your member number.
           </p>
           {!member.memberNo && (
             <p className="alert">

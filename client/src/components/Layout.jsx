@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { isCommittee } from '../auth/permissions.js';
+import { usePendingCount } from '../hooks/usePendingCount.js';
 
 function Crest() {
   return (
@@ -15,6 +16,7 @@ function Crest() {
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const pendingCount = usePendingCount(user);
 
   async function handleLogout() {
     await logout();
@@ -35,7 +37,16 @@ export default function Layout() {
           <nav className="main-nav" aria-label="Main">
             <NavLink to="/" end>Home</NavLink>
             {user && <NavLink to="/card">My card</NavLink>}
-            {isCommittee(user) && <NavLink to="/committee">Committee</NavLink>}
+            {isCommittee(user) && (
+              <NavLink to="/committee" className="nav-with-badge">
+                Committee
+                {pendingCount > 0 && (
+                  <span className="nav-badge" aria-label={`${pendingCount} registrations waiting`}>
+                    {pendingCount > 99 ? '99+' : pendingCount}
+                  </span>
+                )}
+              </NavLink>
+            )}
             {user ? (
               <>
                 <span className="nav-user">Hi, {user.fullName.split(' ')[0]}</span>

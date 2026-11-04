@@ -195,6 +195,13 @@ registrationsRouter.post('/', registerLimiter, upload.single('photo'), async (re
 
 // ---------- Committee review ----------
 
+// GET /api/registrations/count  how many are waiting for this person (the badge on "Committee")
+registrationsRouter.get('/count', requireRole(...REVIEW_ROLES), async (req, res) => {
+  const scoped = scopedBranchFilter(req.user, REVIEW_ROLES);
+  const count = await User.countDocuments({ status: 'pending', ...scoped });
+  res.json({ count });
+});
+
 // GET /api/registrations?branch=<id>  registrations waiting for approval
 registrationsRouter.get('/', requireRole(...REVIEW_ROLES), async (req, res) => {
   const scoped = scopedBranchFilter(req.user, REVIEW_ROLES, req.query.branch);

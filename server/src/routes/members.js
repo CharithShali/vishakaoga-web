@@ -24,3 +24,17 @@ membersRouter.get('/me', requireAuth, async (req, res) => {
     },
   });
 });
+
+// GET /api/members/me/photo  her photo, served from this site so the
+// "Save card" button can draw it into a downloadable image.
+membersRouter.get('/me/photo', requireAuth, async (req, res) => {
+  const url = cardPhotoUrl(req.user.photoId);
+  if (!url) return res.status(404).json({ error: 'No photo yet.' });
+
+  const upstream = await fetch(url);
+  if (!upstream.ok) return res.status(502).json({ error: 'Could not load the photo.' });
+
+  res.set('Content-Type', upstream.headers.get('content-type') || 'image/webp');
+  res.set('Cache-Control', 'private, max-age=3600');
+  res.send(Buffer.from(await upstream.arrayBuffer()));
+});

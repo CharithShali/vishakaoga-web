@@ -205,43 +205,41 @@ td { padding: 12px 14px; border-top: 1px solid #eee7d7; vertical-align: top; }
 .steps-card h2 { font-size: 22px; }
 .steps-card ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; color: #3f4756; }
 
-/* ---- Membership card ---- */
+/* ---- Membership card (portrait, like an ID card) ---- */
 .member-card {
-  width: 100%; max-width: 520px; background: var(--navy); color: var(--ivory);
-  border: 2px solid var(--gold); border-radius: 20px; padding: 24px;
-  display: flex; flex-direction: column; gap: 20px;
+  width: 100%; max-width: 340px; background: var(--navy); color: var(--ivory);
+  border: 3px solid var(--gold); border-radius: 22px; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 .mc-top {
-  display: flex; justify-content: space-between; align-items: center; gap: 12px;
-  border-bottom: 1px solid #3a5078; padding-bottom: 14px;
+  width: calc(100% - 48px); display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 18px 0 14px; border-bottom: 1px solid #3a5078;
+  color: var(--gold); font-family: var(--serif); font-size: 21px; font-weight: 700;
 }
-.mc-brand { display: flex; align-items: center; gap: 8px; color: var(--gold); font-family: var(--serif); font-size: 18px; font-weight: 700; }
-.mc-brand svg { flex: none; }
-.mc-branch {
-  font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  background: var(--gold-soft); color: var(--navy); padding: 4px 10px; border-radius: 999px;
-}
-.mc-body { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; }
-.mc-person { flex: 1 1 220px; min-width: 0; display: flex; gap: 14px; align-items: center; }
+.mc-top svg { flex: none; }
 .mc-photo {
-  flex: 0 0 90px; width: 90px; height: 108px; border-radius: 10px; overflow: hidden;
+  margin-top: 18px; width: 112px; height: 134px; border-radius: 12px; overflow: hidden;
   background: #22385f; border: 1px solid #6e83a8; display: flex; align-items: center; justify-content: center;
   color: #b9c5da; font-size: 13px;
 }
 .mc-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.mc-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.mc-name { font-family: var(--serif); font-size: 22px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.mc-text { display: flex; flex-direction: column; gap: 3px; padding: 14px 22px 0; max-width: 100%; }
+.mc-name { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
 .mc-detail { font-size: 15px; color: #dce2ec; }
 .mc-roles { font-size: 14px; color: var(--gold-soft); }
 .mc-qr {
-  flex: 0 0 140px; width: 140px; height: 140px; background: var(--white); border-radius: 8px; padding: 8px;
-  display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; text-align: center;
+  margin-top: 16px; width: 140px; height: 140px; background: var(--white); border-radius: 10px; padding: 8px;
+  display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px;
 }
 .mc-qr img { width: 100%; height: 100%; display: block; }
-.mc-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.mc-meta { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 16px 18px; }
 .mc-no { font-size: 14px; letter-spacing: 0.06em; color: #dce2ec; }
-.mc-status { background: var(--gold); color: var(--navy); font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 999px; }
+.mc-status { background: var(--gold); color: var(--navy); font-weight: 700; font-size: 13px; padding: 4px 14px; border-radius: 999px; }
+.mc-branch {
+  width: 100%; padding: 12px 16px; background: var(--gold-soft); color: var(--navy);
+  font-size: 14px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+}
 
 /* ---- My card page ---- */
 .card-page-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; margin-top: 24px; }
@@ -253,7 +251,7 @@ td { padding: 12px 14px; border-top: 1px solid #eee7d7; vertical-align: top; }
   display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start;
   padding-top: 20px; border-top: 1px solid #eee7d7;
 }
-.pending-item .member-card { flex: 0 1 460px; }
+.pending-item .member-card { flex: 0 1 300px; }
 .pending-details { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 .pending-details dl { margin: 0; display: flex; flex-direction: column; gap: 6px; }
 .dl-row { display: flex; gap: 12px; font-size: 15px; }
@@ -261,14 +259,33 @@ td { padding: 12px 14px; border-top: 1px solid #eee7d7; vertical-align: top; }
 .dl-row dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
 .reject-box { display: flex; flex-direction: column; gap: 12px; }
 
-/* ---- Printing the card ---- */
+/* ---- Printing the card: only the card, portrait, ID-card size ---- */
 @media print {
+  @page { margin: 0; } /* also hides the browser's date/title header and footer */
   body { background: var(--white); }
   .site-header, .site-footer, .no-print { display: none !important; }
-  .page { padding: 0; }
-  .member-card { max-width: 86mm; padding: 4mm; gap: 3mm; border-radius: 4mm; font-size: 9pt; }
-  .mc-name { font-size: 13pt; }
-  .mc-photo { flex-basis: 20mm; width: 20mm; height: 24mm; }
-  .mc-qr { flex-basis: 26mm; width: 26mm; height: 26mm; padding: 1.5mm; }
+  .page, .container { padding: 0; margin: 0; max-width: none; }
+  .card-page-row { margin: 0; padding: 12mm; display: block; }
+  .member-card { width: 54mm; max-width: none; border-width: 0.6mm; border-radius: 3.5mm; }
+  .mc-top { font-size: 10pt; gap: 1.5mm; padding: 3mm 0 2mm; width: calc(100% - 6mm); }
+  .mc-top svg { width: 4.5mm; height: 4.5mm; }
+  .mc-photo { margin-top: 3mm; width: 18mm; height: 21.6mm; border-radius: 2mm; }
+  .mc-text { padding: 2mm 3mm 0; gap: 0.5mm; }
+  .mc-name { font-size: 10.5pt; }
+  .mc-detail { font-size: 7pt; }
+  .mc-roles { font-size: 6.5pt; }
+  .mc-qr { margin-top: 2.5mm; width: 22mm; height: 22mm; padding: 1.2mm; border-radius: 1.5mm; }
+  .mc-meta { gap: 1.2mm; padding: 2mm 2mm 3mm; }
+  .mc-no { font-size: 6.5pt; }
+  .mc-status { font-size: 6.5pt; padding: 0.6mm 2.5mm; }
+  .mc-branch { padding: 2mm; font-size: 6.5pt; }
 }
+
 .alert:not(.alert-error):not(.alert-ok) { background: var(--sand); color: var(--navy); }
+
+/* ---- Header badge: registrations waiting ---- */
+.nav-with-badge { display: inline-flex; align-items: center; gap: 6px; }
+.nav-badge {
+  min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px;
+  background: var(--gold); color: var(--navy); font-size: 13px; font-weight: 700; line-height: 22px; text-align: center;
+}

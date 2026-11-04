@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import MemberCard from './MemberCard.jsx';
+import { announcePendingChanged } from '../hooks/usePendingCount.js';
 
 // New registrations waiting for approval, shown as the card she will get,
 // with her details beside it. Approve gives her a member number and QR code.
@@ -24,6 +25,7 @@ export default function PendingRegistrations({ branchFilter, onReviewed }) {
     setItems((list) => list.filter((r) => r._id !== id));
     setNotice(message);
     onReviewed?.();
+    announcePendingChanged(); // update the badge in the header straight away
   }
 
   return (

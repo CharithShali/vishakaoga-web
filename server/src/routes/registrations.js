@@ -30,7 +30,7 @@ const OBJECT_ID = /^[a-f0-9]{24}$/i;
 
 const upload = multer({
   storage: multer.memoryStorage(), // kept in memory, resized, then sent to Cloudinary
-  limits: { fileSize: 8 * 1024 * 1024, files: 1 },
+  limits: { fileSize: 2 * 1024 * 1024, files: 1 }, // the browser sends a cropped ~100-300 KB JPEG
   fileFilter(_req, file, cb) {
     if (/^image\/(jpeg|png|webp)$/.test(file.mimetype)) return cb(null, true);
     const err = new Error('The photo must be a JPEG, PNG or WebP image.');

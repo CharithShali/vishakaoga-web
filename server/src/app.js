@@ -65,7 +65,7 @@ export function createApp() {
     if (err?.name === 'MulterError') {
       const message =
         err.code === 'LIMIT_FILE_SIZE'
-          ? 'The photo is too large. Please use one under 8 MB.'
+          ? 'The photo is too large. Please choose it again so it can be shrunk first.'
           : 'The photo could not be uploaded. Please try again.';
       return res.status(400).json({ error: message, field: 'photo' });
     }

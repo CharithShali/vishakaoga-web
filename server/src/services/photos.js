@@ -26,16 +26,34 @@ function setup() {
   configured = true;
 }
 
+// Largest size a stored card photo may be. Change PHOTO_MAX_KB in .env to adjust.
+export const PHOTO_MAX_KB = Number(process.env.PHOTO_MAX_KB) || 50;
+const QUALITY_STEPS = [80, 70, 60, 50, 40, 30];
+
 /**
- * Turn any uploaded photo into a small card photo: 400 x 480 (5:6), WebP, ~30-50 KB.
+ * Turn any uploaded photo into a small card photo: 400 x 480 (5:6), WebP,
+ * never bigger than PHOTO_MAX_KB. Starts at good quality and lowers it step by
+ * step until it fits; very busy photos also get slightly smaller dimensions.
  * .rotate() fixes sideways phone photos using their orientation data.
  */
-export async function prepareCardPhoto(buffer) {
-  return sharp(buffer)
+export async function prepareCardPhoto(buffer, maxKb = PHOTO_MAX_KB) {
+  const limit = maxKb * 1024;
+  const sized = await sharp(buffer)
     .rotate()
     .resize(400, 480, { fit: 'cover', position: 'attention' })
-    .webp({ quality: 80 })
     .toBuffer();
+
+  let out;
+  for (const quality of QUALITY_STEPS) {
+    out = await sharp(sized).webp({ quality }).toBuffer();
+    if (out.length <= limit) return out;
+  }
+  // Still too big at the lowest quality: shrink to 320 x 384 as a last resort.
+  for (const quality of QUALITY_STEPS) {
+    out = await sharp(sized).resize(320, 384).webp({ quality }).toBuffer();
+    if (out.length <= limit) return out;
+  }
+  return out;
 }
 
 /** Upload a prepared photo. Returns its Cloudinary public id. */

@@ -9,7 +9,7 @@ One Node app serves both the API and the website, so it runs as a single Render 
 ## Build progress
 
 - [x] **Step 1:** project setup, branches, login, committee roles
-- [ ] Step 2: registration with photo crop, committee approval, QR membership card
+- [ ] Step 2: registration (incl. current profession) with photo crop, committee approval, QR membership card
 - [ ] Step 3: events, "I'm attending", QR scanning at the gate
 - [ ] Step 4: fund records per branch
 - [ ] Step 5: posts, history pages, batch wall, Excel/PDF batch lists

@@ -96,22 +96,29 @@ export default function CommitteePage() {
                   <th>Name</th>
                   <th>Branch</th>
                   <th>Batch</th>
+                  <th>Profession</th>
                   <th>Email</th>
                   <th>Committee roles</th>
                 </tr>
               </thead>
               <tbody>
                 {loading && (
-                  <tr><td colSpan="5" className="muted">Loading…</td></tr>
+                  <tr><td colSpan="6" className="muted">Loading…</td></tr>
                 )}
                 {!loading && members.length === 0 && (
-                  <tr><td colSpan="5" className="muted">No members yet.</td></tr>
+                  <tr><td colSpan="6" className="muted">No members yet.</td></tr>
                 )}
                 {!loading && members.map((m) => (
                   <tr key={m._id}>
                     <td className="strong">{m.fullName}</td>
                     <td>{m.branch?.name}</td>
                     <td>{m.batchYear || '—'}</td>
+                    <td>
+                      {m.profession?.title || m.profession?.category || '—'}
+                      {m.profession?.workplace && (
+                        <div className="muted small">{m.profession.workplace}</div>
+                      )}
+                    </td>
                     <td className="muted">{m.email}</td>
                     <td>
                       <RoleCell member={m} branches={branches} editable={admin}

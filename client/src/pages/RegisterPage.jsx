@@ -8,7 +8,7 @@ export default function RegisterPage() {
         <p>Online registration opens soon.</p>
         <p className="muted">
           You will choose your branch (Kandy, Bandarawela or Colombo), your batch and class,
-          and add a photo for your QR membership card.
+          tell us your current profession, and add a photo for your QR membership card.
         </p>
       </div>
     </div>

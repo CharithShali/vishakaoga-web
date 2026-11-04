@@ -69,9 +69,27 @@ async function seedDemo(branchesByCode) {
   }
   const passwordHash = await bcrypt.hash(process.env.DEMO_PASSWORD || 'demo-pass-123', 12);
   const demo = [
-    { email: 'kandy.member@demo.lk', fullName: 'Kandy Member', code: 'KDY', batchYear: 2004 },
-    { email: 'bdw.member@demo.lk', fullName: 'Bandarawela Member', code: 'BDW', batchYear: 2010 },
-    { email: 'col.member@demo.lk', fullName: 'Colombo Member', code: 'COL', batchYear: 1998 },
+    {
+      email: 'kandy.member@demo.lk',
+      fullName: 'Kandy Member',
+      code: 'KDY',
+      batchYear: 2004,
+      profession: { category: 'Medicine & health', title: 'Doctor', workplace: 'Demo Hospital' },
+    },
+    {
+      email: 'bdw.member@demo.lk',
+      fullName: 'Bandarawela Member',
+      code: 'BDW',
+      batchYear: 2010,
+      profession: { category: 'Education', title: 'Teacher' },
+    },
+    {
+      email: 'col.member@demo.lk',
+      fullName: 'Colombo Member',
+      code: 'COL',
+      batchYear: 1998,
+      profession: { category: 'IT & technology', title: 'Software engineer' },
+    },
     {
       email: 'kandy.coordinator@demo.lk',
       fullName: 'Kandy Coordinator',
@@ -96,6 +114,7 @@ async function seedDemo(branchesByCode) {
       fullName: d.fullName,
       branch: branchesByCode[d.code]._id,
       batchYear: d.batchYear,
+      profession: d.profession || {},
       status: 'active',
       roles: (d.roles || []).map((r) => ({
         name: r.name,

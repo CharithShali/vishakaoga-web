@@ -10,6 +10,36 @@ const roleSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Broad groups, so the committee can filter and count members by profession.
+export const PROFESSION_CATEGORIES = [
+  'Medicine & health',
+  'Engineering',
+  'IT & technology',
+  'Education',
+  'Law',
+  'Banking & finance',
+  'Business & management',
+  'Public service',
+  'Science & research',
+  'Arts, media & design',
+  'Self-employed',
+  'Homemaker',
+  'Student',
+  'Retired',
+  'Other',
+];
+
+const professionSchema = new mongoose.Schema(
+  {
+    category: { type: String, enum: PROFESSION_CATEGORIES },
+    title: { type: String, trim: true, default: '' }, // e.g. "Consultant paediatrician"
+    workplace: { type: String, trim: true, default: '' }, // e.g. "Lady Ridgeway Hospital"
+    // Other members see it only if she agrees; the committee always can.
+    showToMembers: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -19,6 +49,7 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true, default: '' },
     branch: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', required: true },
     batchYear: { type: Number },
+    profession: { type: professionSchema, default: () => ({}) },
     // pending = waiting for the branch coordinator to approve the registration
     status: {
       type: String,

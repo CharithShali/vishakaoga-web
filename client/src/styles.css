@@ -296,3 +296,10 @@ td { padding: 12px 14px; border-top: 1px solid #eee7d7; vertical-align: top; }
 .small-field input { min-height: 40px; padding: 6px 10px; font-size: 14px; }
 .chip-remove { font-size: 20px; }
 .chip-remove:hover { color: var(--danger); }
+
+/* ---- Committee: member search ---- */
+.member-search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 4px 0 14px; }
+.member-search .field { flex: 0 1 240px; }
+.member-search .search-field { flex: 1 1 320px; }
+.search-count { margin-left: auto; padding-bottom: 10px; }
+.school-roles { color: var(--gold-text); font-weight: 600; }

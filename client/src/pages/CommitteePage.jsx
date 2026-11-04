@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { ROLES, ROLE_LABELS, hasRole, isAdmin, roleText } from '../auth/permissions.js';
 import PendingRegistrations from '../components/PendingRegistrations.jsx';
+import { SCHOOL_ROLES } from '../options.js';
 
 const VIEW_ROLES = ['secretary', 'coordinator'];
 
@@ -16,6 +17,16 @@ export default function CommitteePage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [reloadKey, setReloadKey] = useState(0); // bump to reload the member list
+  const [search, setSearch] = useState(''); // what is typed in the search box
+  const [query, setQuery] = useState(''); // the same, after a short pause in typing
+  const [roleFilter, setRoleFilter] = useState('');
+  const [total, setTotal] = useState(0);
+
+  // Search 300 ms after she stops typing, not on every key.
+  useEffect(() => {
+    const timer = setTimeout(() => setQuery(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const canViewMembers = hasRole(user, VIEW_ROLES);
   const admin = isAdmin(user);
@@ -42,11 +53,16 @@ export default function CommitteePage() {
     setError('');
     const params = new URLSearchParams({ status: statusView });
     if (branchFilter) params.set('branch', branchFilter);
+    if (query) params.set('q', query);
+    if (roleFilter) params.set('role', roleFilter);
     api(`/users?${params}`)
-      .then((d) => setMembers(d.users))
+      .then((d) => {
+        setMembers(d.users);
+        setTotal(d.total ?? d.users.length);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [branchFilter, statusView, canViewMembers, reloadKey]);
+  }, [branchFilter, statusView, query, roleFilter, canViewMembers, reloadKey]);
 
   async function run(action, successMessage) {
     setError('');
@@ -129,6 +145,35 @@ export default function CommitteePage() {
             )}
           </div>
 
+          <div className="member-search" role="search">
+            <label className="field search-field">
+              Search
+              <input type="search" value={search} onChange={(e) => setSearch(e.target.value)}
+                placeholder="Name, member number (e.g. COL-2016) or batch year" />
+            </label>
+            <label className="field">
+              Role
+              <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+                <option value="">Any role</option>
+                <optgroup label="Committee roles">
+                  <option value="committee:any">Any committee role</option>
+                  {ROLES.map((r) => <option key={r} value={`committee:${r}`}>{ROLE_LABELS[r]}</option>)}
+                </optgroup>
+                <optgroup label="Roles at school">
+                  {SCHOOL_ROLES.map((r) => <option key={r} value={`school:${r}`}>{r}</option>)}
+                </optgroup>
+              </select>
+            </label>
+            {(search || roleFilter) && (
+              <button type="button" className="btn btn-small" onClick={() => { setSearch(''); setRoleFilter(''); }}>
+                Clear
+              </button>
+            )}
+            <span className="muted small search-count">
+              {loading ? 'Searching…' : `${total} ${total === 1 ? 'member' : 'members'}${total > members.length ? ` (showing first ${members.length})` : ''}`}
+            </span>
+          </div>
+
           {!admin && (
             <p className="muted small">Only the main admin can change committee roles or remove members.</p>
           )}
@@ -163,7 +208,9 @@ export default function CommitteePage() {
                 )}
                 {!loading && members.length === 0 && (
                   <tr><td colSpan={columns} className="muted">
-                    {showingRemoved ? 'No removed members.' : 'No members yet.'}
+                    {query || roleFilter
+                      ? 'No members match your search.'
+                      : showingRemoved ? 'No removed members.' : 'No members yet.'}
                   </td></tr>
                 )}
                 {!loading && members.map((m) => (
@@ -171,6 +218,9 @@ export default function CommitteePage() {
                     <td className="strong">
                       {m.fullName}
                       {m.memberNo && <div className="muted small">{m.memberNo}</div>}
+                      {m.schoolRoles?.length > 0 && (
+                        <div className="school-roles small">{m.schoolRoles.join(' · ')}</div>
+                      )}
                     </td>
                     <td>{m.branch?.name}</td>
                     <td>{m.batchYear || '—'}</td>

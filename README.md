@@ -97,7 +97,7 @@ server/
 | POST | `/api/auth/login` · `/api/auth/logout` | Anyone |
 | GET | `/api/auth/me` | Anyone (returns `user: null` when logged out) |
 | POST | `/api/auth/change-password` | Logged-in members |
-| GET | `/api/users?branch=&status=` | Secretary / coordinator (own branch only) / admin |
+| GET | `/api/users?branch=&status=&q=&role=` (q: name, member no., email or batch year; role: `committee:any`, `committee:<role>`, `school:<role>`) | Secretary / coordinator (own branch only) / admin |
 | PUT | `/api/users/:id/roles` | Main admin |
 | POST | `/api/users/:id/remove` `{ reason }` · `/api/users/:id/restore` | Main admin |
 | DELETE | `/api/users/:id` (only removed or rejected members; photo deleted too) | Main admin |

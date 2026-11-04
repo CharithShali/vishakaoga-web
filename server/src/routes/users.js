@@ -7,6 +7,7 @@ import { requireRole } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { ROLES } from '../utils/permissions.js';
 import { scopedBranchFilter } from '../utils/branchFilter.js';
+import { buildMemberSearch } from '../utils/memberSearch.js';
 import { deleteCardPhoto } from '../services/photos.js';
 
 export const usersRouter = Router();
@@ -27,13 +28,19 @@ usersRouter.get('/', requireRole(...VIEW_ROLES), async (req, res) => {
   if (scoped.error) return res.status(scoped.status).json({ error: scoped.error });
   Object.assign(filter, scoped);
 
+  // Search box (name, member number, email or batch year) and role filter
+  const search = buildMemberSearch(req.query.q, req.query.role);
+  if (search.error) return res.status(400).json({ error: search.error });
+  Object.assign(filter, search.filter);
+
+  const total = await User.countDocuments(filter);
   const users = await User.find(filter)
     .sort({ fullName: 1 })
     .limit(500)
     .populate('branch', 'name code')
     .populate('roles.branch', 'name code')
     .populate('removal.by', 'fullName');
-  res.json({ users });
+  res.json({ users, total });
 });
 
 const rolesSchema = z.object({

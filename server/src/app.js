@@ -1,0 +1,66 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import express from 'express';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import { env } from './config/env.js';
+import { loadUser } from './middleware/auth.js';
+import { authRouter } from './routes/auth.js';
+import { branchesRouter } from './routes/branches.js';
+import { usersRouter } from './routes/users.js';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.resolve(here, '../../client/dist');
+
+export function createApp() {
+  const app = express();
+
+  // Render runs the app behind a proxy; this makes rate limiting and secure cookies work.
+  app.set('trust proxy', 1);
+
+  const csp = helmet.contentSecurityPolicy.getDefaultDirectives();
+  csp['img-src'] = ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com'];
+  app.use(helmet({ contentSecurityPolicy: { directives: csp } }));
+
+  app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser());
+
+  // ---- API ----
+  app.use('/api', loadUser);
+  app.get('/api/health', (_req, res) => res.json({ ok: true }));
+  app.use('/api/auth', authRouter);
+  app.use('/api/branches', branchesRouter);
+  app.use('/api/users', usersRouter);
+  app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found.' }));
+
+  // ---- Website (the built React app) ----
+  if (fs.existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    // Any other page address is handled by React Router.
+    app.use((req, res, next) => {
+      if (req.method !== 'GET') return next();
+      res.sendFile(path.join(clientDist, 'index.html'));
+    });
+  } else if (!env.isProd) {
+    app.get('/', (_req, res) =>
+      res.send('API is running. In development, open the website at http://localhost:5173')
+    );
+  }
+
+  // ---- Errors ----
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, _req, res, _next) => {
+    if (err?.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0] || 'value';
+      return res.status(409).json({ error: `That ${field} is already used.` });
+    }
+    if (err?.type === 'entity.parse.failed') {
+      return res.status(400).json({ error: 'The request was not valid JSON.' });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong on the server. Please try again.' });
+  });
+
+  return app;
+}

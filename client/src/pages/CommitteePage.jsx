@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { ROLES, ROLE_LABELS, hasRole, isAdmin, roleText } from '../auth/permissions.js';
+import PendingRegistrations from '../components/PendingRegistrations.jsx';
 
 const VIEW_ROLES = ['secretary', 'coordinator'];
 
@@ -12,6 +13,7 @@ export default function CommitteePage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0); // bump to reload the member list
 
   const canViewMembers = hasRole(user, VIEW_ROLES);
   const admin = isAdmin(user);
@@ -40,7 +42,7 @@ export default function CommitteePage() {
       .then((d) => setMembers(d.users))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [branchFilter, canViewMembers]);
+  }, [branchFilter, canViewMembers, reloadKey]);
 
   async function saveRoles(memberId, roles) {
     setError('');
@@ -68,20 +70,25 @@ export default function CommitteePage() {
           (fund records, event scanning) arrive in the next steps.
         </p>
       ) : (
+        <>
+        <div className="tabs tabs-bar" role="group" aria-label="Branch">
+          {seesAllBranches && (
+            <button type="button" className={branchFilter === '' ? 'tab active' : 'tab'}
+              onClick={() => setBranchFilter('')}>All branches</button>
+          )}
+          {visibleBranches.map((b) => (
+            <button key={b._id} type="button"
+              className={branchFilter === b._id ? 'tab active' : 'tab'}
+              onClick={() => setBranchFilter(b._id)}>{b.name}</button>
+          ))}
+        </div>
+
+        <PendingRegistrations branchFilter={branchFilter}
+          onReviewed={() => setReloadKey((k) => k + 1)} />
+
         <section className="card section">
           <div className="section-head">
             <h2>Members &amp; committee roles</h2>
-            <div className="tabs" role="group" aria-label="Branch">
-              {seesAllBranches && (
-                <button type="button" className={branchFilter === '' ? 'tab active' : 'tab'}
-                  onClick={() => setBranchFilter('')}>All branches</button>
-              )}
-              {visibleBranches.map((b) => (
-                <button key={b._id} type="button"
-                  className={branchFilter === b._id ? 'tab active' : 'tab'}
-                  onClick={() => setBranchFilter(b._id)}>{b.name}</button>
-              ))}
-            </div>
           </div>
 
           {!admin && (
@@ -130,6 +137,7 @@ export default function CommitteePage() {
             </table>
           </div>
         </section>
+        </>
       )}
     </div>
   );

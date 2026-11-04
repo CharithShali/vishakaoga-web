@@ -9,6 +9,8 @@ import { loadUser } from './middleware/auth.js';
 import { authRouter } from './routes/auth.js';
 import { branchesRouter } from './routes/branches.js';
 import { usersRouter } from './routes/users.js';
+import { registrationsRouter } from './routes/registrations.js';
+import { membersRouter } from './routes/members.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(here, '../../client/dist');
@@ -32,6 +34,8 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/branches', branchesRouter);
   app.use('/api/users', usersRouter);
+  app.use('/api/registrations', registrationsRouter);
+  app.use('/api/members', membersRouter);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found.' }));
 
   // ---- Website (the built React app) ----
@@ -57,6 +61,16 @@ export function createApp() {
     }
     if (err?.type === 'entity.parse.failed') {
       return res.status(400).json({ error: 'The request was not valid JSON.' });
+    }
+    if (err?.name === 'MulterError') {
+      const message =
+        err.code === 'LIMIT_FILE_SIZE'
+          ? 'The photo is too large. Please use one under 8 MB.'
+          : 'The photo could not be uploaded. Please try again.';
+      return res.status(400).json({ error: message, field: 'photo' });
+    }
+    if (err?.status && err.status < 500) {
+      return res.status(err.status).json({ error: err.message });
     }
     console.error(err);
     res.status(500).json({ error: 'Something went wrong on the server. Please try again.' });

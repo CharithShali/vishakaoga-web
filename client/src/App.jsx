@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import CommitteePage from './pages/CommitteePage.jsx';
+import CardPage from './pages/CardPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import { ROLES } from './auth/permissions.js';
 
@@ -15,6 +16,14 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route
+          path="card"
+          element={
+            <RequireRole>
+              <CardPage />
+            </RequireRole>
+          }
+        />
         <Route
           path="committee"
           element={

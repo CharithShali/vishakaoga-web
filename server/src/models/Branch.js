@@ -8,6 +8,8 @@ const branchSchema = new mongoose.Schema(
     order: { type: Number, default: 0 },
     address: { type: String, default: '' },
     foundedYear: { type: Number },
+    // School houses at this branch. Empty = the form shows a text box instead of a list.
+    houses: { type: [String], default: [] },
     active: { type: Boolean, default: true },
   },
   { timestamps: true }

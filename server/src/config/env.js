@@ -25,6 +25,12 @@ export const env = {
   port: Number(process.env.PORT) || 5000,
   mongoUri: required('MONGODB_URI'),
   jwtSecret: required('JWT_SECRET'),
+  // Checked only when a photo is uploaded, so the rest of the site works without it.
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: process.env.CLOUDINARY_API_KEY || '',
+    apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+  },
 };
 
 if (env.isProd && env.jwtSecret.length < 32) {

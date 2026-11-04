@@ -5,7 +5,8 @@ import { User } from '../models/User.js';
 import { Branch } from '../models/Branch.js';
 import { requireRole } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { ROLES, branchScope } from '../utils/permissions.js';
+import { ROLES } from '../utils/permissions.js';
+import { scopedBranchFilter } from '../utils/branchFilter.js';
 
 export const usersRouter = Router();
 
@@ -21,22 +22,9 @@ usersRouter.get('/', requireRole(...VIEW_ROLES), async (req, res) => {
   if (!STATUSES.includes(status)) return res.status(400).json({ error: 'Unknown status.' });
   filter.status = status;
 
-  const scope = branchScope(req.user, VIEW_ROLES);
-  const requested = req.query.branch ? String(req.query.branch) : null;
-  if (requested && !mongoose.isValidObjectId(requested)) {
-    return res.status(400).json({ error: 'Unknown branch.' });
-  }
-
-  if (scope === 'all') {
-    if (requested) filter.branch = requested;
-  } else if (requested) {
-    if (!scope.includes(requested)) {
-      return res.status(403).json({ error: 'You can only see members of your own branch.' });
-    }
-    filter.branch = requested;
-  } else {
-    filter.branch = { $in: scope };
-  }
+  const scoped = scopedBranchFilter(req.user, VIEW_ROLES, req.query.branch);
+  if (scoped.error) return res.status(scoped.status).json({ error: scoped.error });
+  Object.assign(filter, scoped);
 
   const users = await User.find(filter)
     .sort({ fullName: 1 })

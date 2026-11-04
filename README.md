@@ -9,7 +9,7 @@ One Node app serves both the API and the website, so it runs as a single Render 
 ## Build progress
 
 - [x] **Step 1:** project setup, branches, login, committee roles
-- [ ] Step 2: registration (incl. current profession) with photo crop, committee approval, QR membership card
+- [x] **Step 2:** registration (incl. current profession) with photo crop, committee approval, QR membership card
 - [ ] Step 3: events, "I'm attending", QR scanning at the gate
 - [ ] Step 4: fund records per branch
 - [ ] Step 5: posts, history pages, batch wall, Excel/PDF batch lists
@@ -33,6 +33,7 @@ and fill in:
 | `MONGODB_URI` | Atlas → your cluster → **Connect** → **Drivers**. Keep `/vishakaoga` before the `?`. Also allow your IP under **Network Access**. |
 | `JWT_SECRET` | Run `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` and paste the result |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` | Your own login for the first main admin account |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Cloudinary → **Settings** → **API Keys** (needed for member photos) |
 
 Then create the branches and your admin account, and start the site:
 
@@ -79,7 +80,8 @@ client/                 React website (Vite)
   src/pages/            One file per page
   src/auth/             Login state and role helpers
 server/
-  src/models/           MongoDB models: Branch, User
+  src/models/           MongoDB models: Branch, User, Counter
+  src/services/         Photo resize + Cloudinary
   src/routes/           API: /api/auth, /api/branches, /api/users
   src/middleware/       Login cookie, role checks, input validation
   src/utils/            Permission rules (+ tests)
@@ -97,6 +99,25 @@ server/
 | POST | `/api/auth/change-password` | Logged-in members |
 | GET | `/api/users?branch=&status=` | Secretary / coordinator (own branch only) / admin |
 | PUT | `/api/users/:id/roles` | Main admin |
+| POST | `/api/registrations` | Anyone (multipart: `data` JSON + `photo`) |
+| GET | `/api/registrations?branch=` | Coordinator (own branch) / secretary / admin |
+| POST | `/api/registrations/:id/approve` · `/reject` | Coordinator or secretary of that branch / admin |
+| GET | `/api/members/me` | Logged-in members (card details) |
+
+## How registration works
+
+1. She fills in the form at `/register`, crops her photo in the browser (5:6), and sets her password.
+2. The server shrinks the photo to 400 × 480 WebP with `sharp` and stores it on Cloudinary as a
+   **private** ("authenticated") image. Only signed links from the server can open it.
+3. Her account is `pending`. The branch coordinator (or Secretary / admin) sees it under
+   **Committee → New registrations**, as the card she will get, and approves or rejects it.
+4. Approval gives her a member number like `OGA-KDY-2004-0012`. Rejection deletes her photo, and
+   she may register again with the same email.
+5. She logs in and opens **My card**: the QR code holds only her member number.
+
+All image code is in `server/src/services/photos.js`, so changing image service later only
+touches that file. Branch houses can be listed per branch (`houses` on the Branch record in
+Atlas); until then the form shows a text box.
 
 ## Deploying on Render (step 6)
 

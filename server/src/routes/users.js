@@ -7,6 +7,7 @@ import { requireRole } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { ROLES } from '../utils/permissions.js';
 import { scopedBranchFilter } from '../utils/branchFilter.js';
+import { deleteCardPhoto } from '../services/photos.js';
 
 export const usersRouter = Router();
 
@@ -30,7 +31,8 @@ usersRouter.get('/', requireRole(...VIEW_ROLES), async (req, res) => {
     .sort({ fullName: 1 })
     .limit(500)
     .populate('branch', 'name code')
-    .populate('roles.branch', 'name code');
+    .populate('roles.branch', 'name code')
+    .populate('removal.by', 'fullName');
   res.json({ users });
 });
 
@@ -91,4 +93,69 @@ usersRouter.put('/:id/roles', requireRole('admin'), validate(rolesSchema), async
     .populate('branch', 'name code')
     .populate('roles.branch', 'name code');
   res.json({ user: updated });
+});
+
+// ---------- Removing and restoring members (main admin only) ----------
+
+const removeSchema = z.object({
+  reason: z.string().trim().min(3, 'Give a short reason').max(300),
+});
+
+async function findMember(req, res) {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    res.status(404).json({ error: 'Member not found.' });
+    return null;
+  }
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404).json({ error: 'Member not found.' });
+    return null;
+  }
+  return user;
+}
+
+// POST /api/users/:id/remove  { reason }
+// She can no longer log in and her committee roles are cleared. Her record,
+// member number and photo are kept, so the membership can be restored.
+usersRouter.post('/:id/remove', requireRole('admin'), validate(removeSchema), async (req, res) => {
+  const user = await findMember(req, res);
+  if (!user) return;
+  if (String(user._id) === String(req.user._id)) {
+    return res.status(400).json({ error: "You can't remove your own membership." });
+  }
+  if (user.status !== 'active') {
+    return res.status(400).json({ error: 'Only active members can be removed.' });
+  }
+
+  user.status = 'suspended';
+  user.roles = [];
+  user.removal = { by: req.user._id, at: new Date(), reason: req.body.reason };
+  await user.save();
+  res.json({ ok: true, name: user.fullName });
+});
+
+// POST /api/users/:id/restore  → active again (committee roles are not given back)
+usersRouter.post('/:id/restore', requireRole('admin'), async (req, res) => {
+  const user = await findMember(req, res);
+  if (!user) return;
+  if (user.status !== 'suspended') {
+    return res.status(400).json({ error: 'This member has not been removed.' });
+  }
+  user.status = 'active';
+  user.removal = { by: null, at: undefined, reason: '' };
+  await user.save();
+  res.json({ ok: true, name: user.fullName });
+});
+
+// DELETE /api/users/:id  erase a removed or rejected member completely, photo included.
+// Only after removal, so nobody is deleted by a single click.
+usersRouter.delete('/:id', requireRole('admin'), async (req, res) => {
+  const user = await findMember(req, res);
+  if (!user) return;
+  if (!['suspended', 'rejected'].includes(user.status)) {
+    return res.status(400).json({ error: 'Remove the membership first, then delete it.' });
+  }
+  await deleteCardPhoto(user.photoId);
+  await user.deleteOne();
+  res.json({ ok: true, name: user.fullName });
 });

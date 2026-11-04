@@ -99,6 +99,8 @@ server/
 | POST | `/api/auth/change-password` | Logged-in members |
 | GET | `/api/users?branch=&status=` | Secretary / coordinator (own branch only) / admin |
 | PUT | `/api/users/:id/roles` | Main admin |
+| POST | `/api/users/:id/remove` `{ reason }` · `/api/users/:id/restore` | Main admin |
+| DELETE | `/api/users/:id` (only removed or rejected members; photo deleted too) | Main admin |
 | POST | `/api/registrations` | Anyone (multipart: `data` JSON + `photo`) |
 | GET | `/api/registrations?branch=` | Coordinator (own branch) / secretary / admin |
 | POST | `/api/registrations/:id/approve` · `/reject` | Coordinator or secretary of that branch / admin |

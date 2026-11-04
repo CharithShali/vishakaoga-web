@@ -71,6 +71,12 @@ const userSchema = new mongoose.Schema(
       at: { type: Date },
       note: { type: String, trim: true, default: '' }, // reason, if rejected
     },
+    // Set when the main admin removes a membership (status "suspended"). Reversible.
+    removal: {
+      by: { type: ObjectId, ref: 'User', default: null },
+      at: { type: Date },
+      reason: { type: String, trim: true, default: '' },
+    },
     roles: { type: [roleSchema], default: [] },
     lastLoginAt: { type: Date },
   },

@@ -5,6 +5,10 @@ import { api } from '../api.js';
 import { timeOnly } from '../utils/time.js';
 
 const SAME_CARD_PAUSE_MS = 4000; // ignore the same card held in front of the camera
+const START_ATTEMPTS = 4; // the camera can still be busy for a moment after it was last used
+const RETRY_AFTER_MS = 700;
+const CAMERA_HELP =
+  'The camera could not start. Allow camera access for this site, close other apps or tabs using the camera, then press "Restart camera". You can also type member numbers below. (Phones only allow the camera on https:// sites.)';
 
 const RESULT_TEXT = {
   ok: { tone: 'ok', title: (m) => `Welcome, ${m.fullName.split(' ')[0]}!` },
@@ -26,6 +30,8 @@ export default function ScanPage() {
   const [typed, setTyped] = useState('');
   const [error, setError] = useState('');
   const [cameraError, setCameraError] = useState('');
+  const [camera, setCamera] = useState('starting'); // starting | on | error
+  const [cameraKey, setCameraKey] = useState(0); // bump to restart the camera
 
   useEffect(() => {
     api(`/events/${id}`)
@@ -60,26 +66,57 @@ export default function ScanPage() {
     [id]
   );
 
+  // The scanner always calls the latest checkIn, without restarting the camera.
+  const checkInRef = useRef(checkIn);
+  checkInRef.current = checkIn;
+
   // Start the camera once the event has loaded and she may scan.
+  // Starting can fail if the camera is still busy (React starts pages twice in
+  // development, and some phones release the camera slowly), so it retries a few
+  // times, and a start that finishes after the page was closed is shut straight down.
+  const canScan = Boolean(event?.canScan);
   useEffect(() => {
-    if (!event?.canScan || !videoRef.current) return undefined;
-    const scanner = new QrScanner(videoRef.current, (r) => checkIn(r.data, 'qr'), {
+    if (!canScan || !videoRef.current) return undefined;
+    let cancelled = false;
+    let retryTimer;
+    const scanner = new QrScanner(videoRef.current, (r) => checkInRef.current(r.data, 'qr'), {
       returnDetailedScanResult: true,
       preferredCamera: 'environment',
       highlightScanRegion: true,
       highlightCodeOutline: true,
       maxScansPerSecond: 5,
     });
-    scanner.start().catch(() =>
-      setCameraError(
-        'The camera could not start. Allow camera access for this site, or type member numbers below. (Phones only allow the camera on https:// sites.)'
-      )
-    );
+
+    setCamera('starting');
+    setCameraError('');
+
+    const start = async (attempt) => {
+      try {
+        await scanner.start();
+        if (cancelled) {
+          scanner.stop();
+          return;
+        }
+        setCamera('on');
+      } catch {
+        if (cancelled) return;
+        if (attempt < START_ATTEMPTS) {
+          retryTimer = setTimeout(() => start(attempt + 1), RETRY_AFTER_MS);
+          return;
+        }
+        setCamera('error');
+        setCameraError(CAMERA_HELP);
+      }
+    };
+    start(1);
+
     return () => {
+      cancelled = true;
+      clearTimeout(retryTimer);
       scanner.stop();
       scanner.destroy();
     };
-  }, [event, checkIn]);
+  }, [canScan, cameraKey]);
 
   function submitTyped(e) {
     e.preventDefault();
@@ -124,7 +161,16 @@ export default function ScanPage() {
           {/* The scanner draws its frame over the video, so the wrapper must be position: relative. */}
           <div className="scan-video-wrap">
             <video ref={videoRef} muted playsInline className="scan-video" />
+            {camera !== 'on' && (
+              <div className="scan-camera-status">
+                {camera === 'starting' ? 'Starting the camera…' : 'Camera is off'}
+              </div>
+            )}
           </div>
+          <button type="button" className="btn btn-small scan-restart"
+            onClick={() => setCameraKey((k) => k + 1)}>
+            Restart camera
+          </button>
           {cameraError && <p className="alert alert-error">{cameraError}</p>}
           <form className="scan-typed" onSubmit={submitTyped}>
             <label className="field">

@@ -11,7 +11,7 @@ One Node app serves both the API and the website, so it runs as a single Render 
 - [x] **Step 1:** project setup, branches, login, committee roles
 - [x] **Step 2:** registration (incl. current profession) with photo crop, committee approval, QR membership card
 - [x] **Step 3:** events, "I'm attending", QR scanning at the gate, attendance lists
-- [ ] Step 4: fund records per branch
+- [x] **Step 4:** fund records per branch, funds with goals, membership fees on the card
 - [ ] Step 5: posts, history pages, batch wall, Excel/PDF batch lists
 - [ ] Step 6: go live on Render with the .lk domain
 
@@ -111,6 +111,29 @@ server/
 | GET | `/api/events/:id/attendees` | Event helper / coordinator / secretary of that branch, admin |
 | POST | `/api/events/:id/checkin` `{ code }` | Same; result is `ok`, `already`, `removed`, `inactive` or `unknown` |
 | DELETE | `/api/events/:id/checkin/:userId` | Same (undo a mistaken scan) |
+
+## Fund records
+
+- **Members** (logged in) see the totals, the funds and every record. Who paid and receipt numbers
+  are shown to the committee only.
+- **Treasurers** record money in and out: a branch treasurer for her branch, a central treasurer
+  (or the main admin) for central money and every branch. Only the central treasurer or the main
+  admin can add funds and set goals.
+- **Records are never deleted.** A wrong entry is *voided* with a reason: it stays visible,
+  crossed out, and stops counting in the totals.
+- Money is stored in whole cents and dates as plain `YYYY-MM-DD` text, so totals never round
+  wrongly and dates never shift with time zones.
+- A **Membership fee** linked to a member and a year shows on her **My card** page.
+- `npm run seed` creates the General, Scholarship and School project funds;
+  `npm run seed:demo` adds a Kandy treasurer (`treasurer@demo.lk`) and sample records.
+
+| Method | Path | Who |
+| --- | --- | --- |
+| GET | `/api/funds` · `/api/funds/summary?branch=&year=` · `/api/funds/transactions?branch=&year=&fund=&type=&skip=` | Logged-in members (`branch`: empty, `central` or a branch id) |
+| POST · PUT | `/api/funds/transactions` · `/api/funds/transactions/:id` | Treasurer of that branch / central treasurer / admin |
+| POST | `/api/funds/transactions/:id/void` `{ reason }` | Same |
+| GET | `/api/funds/member-search?q=` | Treasurers |
+| POST · PUT | `/api/funds` · `/api/funds/:id` | Central treasurer / admin |
 
 ## Events and the gate scanner
 

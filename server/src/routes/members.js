@@ -2,12 +2,19 @@ import { Router } from 'express';
 import { User } from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
 import { cardPhotoUrl } from '../services/photos.js';
+import { Transaction } from '../models/Fund.js';
 
 export const membersRouter = Router();
 
 // GET /api/members/me  what the logged-in member's card shows
 membersRouter.get('/me', requireAuth, async (req, res) => {
   const u = await User.findById(req.user._id).populate('branch', 'name code');
+  // Years her membership fee has been recorded by a treasurer (voided records don't count)
+  const paidYears = await Transaction.distinct('subscriptionYear', {
+    member: u._id,
+    subscriptionYear: { $ne: null },
+    'voided.at': null,
+  });
   res.json({
     member: {
       _id: u._id,
@@ -21,6 +28,7 @@ membersRouter.get('/me', requireAuth, async (req, res) => {
       schoolRoles: u.schoolRoles,
       profession: u.profession,
       photoUrl: cardPhotoUrl(u.photoId),
+      subscriptionYears: paidYears.sort((a, b) => b - a),
     },
   });
 });

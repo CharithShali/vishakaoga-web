@@ -426,3 +426,56 @@ td { padding: 12px 14px; border-top: 1px solid #eee7d7; vertical-align: top; }
   .scan-photo { flex-basis: 96px; width: 96px; height: 115px; }
   .scan-name { font-size: 20px; }
 }
+
+/* ================= Step 4: fund records ================= */
+.funds-filters .field { min-width: 170px; }
+.record-buttons { margin-top: 18px; }
+.money-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
+.money-tile { display: flex; flex-direction: column; gap: 4px; }
+.money-big { font-family: var(--serif); font-size: 30px; font-weight: 700; color: var(--navy); }
+.money-tile-dark { background: var(--navy); color: #dce2ec; border-color: var(--navy); }
+.money-tile-dark .money-big { color: var(--ivory); }
+.money-tile-dark span:first-child { color: var(--gold-soft); }
+.section > h2 { font-size: 26px; }
+.num { text-align: right; }
+th.num { text-align: right; }
+.nowrap { white-space: nowrap; }
+.money-table { min-width: 860px; }
+.voided td { color: var(--muted); }
+.voided .strong, .voided .num { text-decoration: line-through; }
+.void-note { color: var(--danger); text-decoration: none; }
+.type-pill { display: inline-block; font-size: 13px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.type-in { background: var(--navy); color: var(--ivory); }
+.type-out { background: var(--white); color: var(--gold-text); border: 1px solid var(--gold-text); }
+
+.fund-card { display: flex; flex-direction: column; gap: 10px; }
+.fund-card h3 { margin: 0; font-size: 21px; }
+.fund-card p { margin: 0; }
+.progress { height: 10px; border-radius: 5px; background: var(--sand); overflow: hidden; }
+.progress-bar { height: 100%; background: var(--gold); }
+.fund-figures { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 15px; }
+.fund-figures div { display: flex; flex-direction: column; }
+.fund-figures dt { color: var(--muted); font-size: 13px; }
+.fund-figures dd { margin: 0; }
+.fund-admin-list { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fund-admin-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid #eee7d7; }
+.fund-form { margin-top: 8px; }
+.payments-note { margin-top: 24px; }
+
+.member-picker { display: flex; flex-direction: column; gap: 6px; }
+.member-picker input {
+  font: inherit; font-size: 16px; padding: 11px 13px; border: 1px solid #cfc5ae; border-radius: 6px; min-height: 44px;
+}
+.picker-results { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
+.picker-results button {
+  width: 100%; text-align: left; background: none; border: none; border-top: 1px solid #eee7d7;
+  padding: 10px 12px; font: inherit; cursor: pointer; min-height: 44px;
+}
+.picker-results li:first-child button { border-top: none; }
+.picker-results button:hover { background: #fbf9f4; }
+.fee-year { max-width: 260px; }
+.section-head select {
+  font: inherit; font-size: 15px; padding: 8px 10px; min-height: 40px;
+  border: 1px solid #cfc5ae; border-radius: 6px; background: var(--white); color: var(--ink);
+}
+.row-actions.nowrap { flex-wrap: nowrap; gap: 6px; }

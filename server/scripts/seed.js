@@ -11,6 +11,8 @@ import { Branch } from '../src/models/Branch.js';
 import { User } from '../src/models/User.js';
 import { nextSequence } from '../src/models/Counter.js';
 import { Event } from '../src/models/Event.js';
+import { Fund, Transaction } from '../src/models/Fund.js';
+import { todayInColombo } from '../src/utils/money.js';
 import { formatMemberNo } from '../src/utils/memberNo.js';
 
 const BRANCHES = [
@@ -28,6 +30,17 @@ async function seedBranches() {
   const all = await Branch.find().sort({ order: 1 });
   console.log(`Branches: ${all.map((b) => `${b.name} (${b.code})`).join(', ')}`);
   return Object.fromEntries(all.map((b) => [b.code, b]));
+}
+
+// The three starting funds (only when there are none yet).
+async function seedFunds() {
+  if (await Fund.exists({})) return;
+  await Fund.create([
+    { name: 'General fund', description: 'Events, meetings and running costs of the association.', order: 1 },
+    { name: 'Scholarship fund', description: 'Support for students at all three branches who need help.', order: 2 },
+    { name: 'School project fund', description: 'The current school project. Edit this to describe it.', order: 3 },
+  ]);
+  console.log('Funds created: General, Scholarship, School project');
 }
 
 async function seedAdmin(branchesByCode) {
@@ -108,6 +121,13 @@ async function seedDemo(branchesByCode) {
       roles: [{ name: 'secretary', code: null }],
     },
     {
+      email: 'treasurer@demo.lk',
+      fullName: 'Kandy Treasurer',
+      code: 'KDY',
+      batchYear: 2001,
+      roles: [{ name: 'treasurer', code: 'KDY' }],
+    },
+    {
       email: 'helper@demo.lk',
       fullName: 'Colombo Event Helper',
       code: 'COL',
@@ -182,11 +202,32 @@ async function seedDemo(branchesByCode) {
     ]);
     console.log('Demo events created (one is happening now, for testing the scanner).');
   }
+
+  // A few money records to try the Funds page with.
+  if (!(await Transaction.exists({})) && (await User.exists({ 'roles.name': 'admin' }))) {
+    const funds = Object.fromEntries((await Fund.find()).map((f) => [f.name, f._id]));
+    const admin = await User.findOne({ 'roles.name': 'admin' });
+    const kandyMember = await User.findOne({ email: 'kandy.member@demo.lk' });
+    const today = todayInColombo();
+    const year = Number(today.slice(0, 4));
+    const day = (n) => `${year}-${String(n).padStart(2, '0')}`;
+    const base = { recordedBy: admin._id, fund: funds['General fund'] };
+    await Transaction.create([
+      { ...base, date: `${day(1)}-15`, type: 'in', amountCents: 150000, category: 'Membership fee', description: 'Membership fee', branch: branchesByCode.KDY._id, member: kandyMember._id, subscriptionYear: year, reference: 'R-001' },
+      { ...base, date: `${day(2)}-02`, type: 'in', amountCents: 2500000, category: 'Donation', description: 'Donation from Batch 1998', branch: branchesByCode.COL._id, fund: funds['Scholarship fund'] },
+      { ...base, date: `${day(3)}-10`, type: 'out', amountCents: 1200000, category: 'Scholarship', description: 'Scholarships for 4 students', branch: branchesByCode.COL._id, fund: funds['Scholarship fund'] },
+      { ...base, date: `${day(4)}-20`, type: 'in', amountCents: 800000, category: 'Event income', description: 'Get-together tickets', branch: null },
+      { ...base, date: `${day(4)}-21`, type: 'out', amountCents: 650000, category: 'Event costs', description: 'Get-together venue and food', branch: null },
+      { ...base, date: `${day(5)}-05`, type: 'out', amountCents: 500000, category: 'Running costs', description: 'Website domain (.lk) for the year', branch: null, paymentMethod: 'Bank transfer' },
+    ]);
+    console.log('Demo money records created. treasurer@demo.lk is the Kandy treasurer.');
+  }
 }
 
 try {
   await connectDb();
   const branchesByCode = await seedBranches();
+  await seedFunds();
   await seedAdmin(branchesByCode);
   if (withDemo) await seedDemo(branchesByCode);
   console.log('Seed finished.');

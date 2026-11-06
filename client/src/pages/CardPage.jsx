@@ -82,6 +82,16 @@ export default function CardPage() {
           <button type="button" className="btn btn-lg" onClick={() => window.print()}>
             Print card
           </button>
+          {member.memberNo && (
+            <p className={member.subscriptionYears?.includes(new Date().getFullYear()) ? 'alert alert-ok' : 'alert'}>
+              {member.subscriptionYears?.includes(new Date().getFullYear())
+                ? `Membership fee paid for ${new Date().getFullYear()}.`
+                : `No membership fee recorded for ${new Date().getFullYear()} yet. Pay your branch treasurer, who records it here.`}
+              {member.subscriptionYears?.length > 0 && (
+                <span className="small"> Paid years: {member.subscriptionYears.join(', ')}.</span>
+              )}
+            </p>
+          )}
           {error && <p className="alert alert-error" role="alert">{error}</p>}
           <p className="muted small">
             "Save card" downloads the card as a picture you can keep in your photos.

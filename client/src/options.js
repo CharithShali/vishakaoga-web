@@ -33,3 +33,13 @@ export const SCHOOL_ROLES = [
   'Media Unit',
   'Society President',
 ];
+
+export const EVENT_KINDS = [
+  'Get-together',
+  'Reunion',
+  'Meeting',
+  'Sport',
+  'Service',
+  'Celebration',
+  'Other',
+];

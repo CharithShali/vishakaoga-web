@@ -6,8 +6,12 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import CommitteePage from './pages/CommitteePage.jsx';
 import CardPage from './pages/CardPage.jsx';
+import EventsPage from './pages/EventsPage.jsx';
+import EventPage from './pages/EventPage.jsx';
+import EventFormPage from './pages/EventFormPage.jsx';
+import ScanPage from './pages/ScanPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
-import { ROLES } from './auth/permissions.js';
+import { ROLES, MANAGE_EVENT_ROLES, CHECKIN_ROLES } from './auth/permissions.js';
 
 export default function App() {
   return (
@@ -29,6 +33,32 @@ export default function App() {
           element={
             <RequireRole roles={ROLES}>
               <CommitteePage />
+            </RequireRole>
+          }
+        />
+        <Route path="events" element={<EventsPage />} />
+        <Route
+          path="events/new"
+          element={
+            <RequireRole roles={MANAGE_EVENT_ROLES}>
+              <EventFormPage />
+            </RequireRole>
+          }
+        />
+        <Route path="events/:id" element={<EventPage />} />
+        <Route
+          path="events/:id/edit"
+          element={
+            <RequireRole roles={MANAGE_EVENT_ROLES}>
+              <EventFormPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="events/:id/scan"
+          element={
+            <RequireRole roles={CHECKIN_ROLES}>
+              <ScanPage />
             </RequireRole>
           }
         />

@@ -303,3 +303,118 @@ td { padding: 12px 14px; border-top: 1px solid #eee7d7; vertical-align: top; }
 .member-search .search-field { flex: 1 1 320px; }
 .search-count { margin-left: auto; padding-bottom: 10px; }
 .school-roles { color: var(--gold-text); font-weight: 600; }
+
+/* ================= Step 3: events and the gate scanner ================= */
+.page-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.page-head h1 { margin-bottom: 6px; }
+.page-head p { margin: 0; }
+.narrow-wide { max-width: 760px; }
+.pill {
+  display: inline-block; font-size: 13px; font-weight: 700; color: var(--navy);
+  background: var(--sand); padding: 3px 12px; border-radius: 999px;
+}
+.pill-gold { background: var(--gold-soft); }
+.error-text { color: var(--danger); }
+
+.segmented { display: inline-flex; background: var(--sand); border-radius: 8px; padding: 4px; gap: 4px; }
+.segmented button {
+  min-height: 40px; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+  background: transparent; color: var(--navy); font: inherit; font-size: 15px; font-weight: 600;
+}
+.segmented button.active { background: var(--navy); color: var(--ivory); }
+
+/* ---- Event cards ---- */
+.event-list { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
+.event-card {
+  display: flex; flex-wrap: wrap; background: var(--white); border: 1px solid var(--line);
+  border-radius: 14px; overflow: hidden;
+}
+.event-date {
+  flex: 0 0 120px; background: var(--navy); color: var(--ivory);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; gap: 2px;
+}
+.event-month { font-size: 14px; letter-spacing: 0.14em; color: var(--gold-soft); }
+.event-day { font-family: var(--serif); font-size: 44px; font-weight: 700; line-height: 1; }
+.event-weekday { font-size: 13px; color: #dce2ec; }
+.event-body { flex: 1 1 340px; min-width: 0; padding: 20px 24px; display: flex; flex-direction: column; gap: 8px; }
+.event-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.event-kind { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-text); }
+.event-title { margin: 0; font-size: 24px; }
+.event-title a { text-decoration: none; }
+.event-title a:hover { text-decoration: underline; }
+.event-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 15px; color: var(--muted); }
+.event-actions {
+  flex: 0 1 230px; padding: 20px 24px; display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center; gap: 8px;
+}
+.attend { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.btn-going { background: var(--sand); color: var(--gold-text); border-color: var(--gold-text); }
+
+/* ---- One event ---- */
+.event-head { display: flex; flex-direction: column; gap: 14px; }
+.event-head h1 { margin: 0; }
+.event-facts { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.event-facts div { display: flex; gap: 12px; }
+.event-facts dt { flex: 0 0 80px; color: var(--muted); }
+.event-facts dd { margin: 0; }
+.event-description { margin: 0; white-space: pre-line; max-width: 720px; }
+
+/* ---- Gate scanner ---- */
+.scan-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+.scan-title { margin: 0; font-size: clamp(26px, 4vw, 36px); }
+.scan-count {
+  display: flex; flex-direction: column; align-items: center; background: var(--navy); color: var(--ivory);
+  border-radius: 12px; padding: 10px 22px;
+}
+.scan-count-n { font-family: var(--serif); font-size: 36px; font-weight: 700; line-height: 1.1; color: var(--gold); }
+.scan-layout { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-bottom: 20px; }
+.scan-camera { flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.scan-video-wrap { position: relative; }
+.scan-video { display: block; width: 100%; max-height: 420px; background: #0e1d38; border-radius: 12px; object-fit: cover; }
+.scan-typed { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.scan-typed .field { flex: 1 1 220px; }
+.scan-result {
+  flex: 1 1 340px; min-width: 0; min-height: 260px; border-radius: 14px; padding: 24px;
+  display: flex; flex-direction: column; gap: 14px; border: 3px solid var(--line); background: var(--white);
+}
+.scan-idle { justify-content: center; align-items: center; text-align: center; color: var(--muted); }
+.scan-ok { border-color: #2e7d3a; background: #eef6ee; }
+.scan-warn { border-color: var(--gold); background: #fbf5e3; }
+.scan-bad { border-color: var(--danger); background: #fbeceb; }
+.scan-result-title { margin: 0; font-size: 30px; }
+.scan-ok .scan-result-title { color: #1e5b2a; }
+.scan-warn .scan-result-title { color: var(--gold-text); }
+.scan-bad .scan-result-title { color: var(--danger); }
+.scan-person { display: flex; gap: 18px; align-items: center; }
+.scan-photo {
+  flex: 0 0 120px; width: 120px; height: 144px; border-radius: 12px; overflow: hidden;
+  background: var(--sand); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px;
+}
+.scan-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-person-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; align-items: flex-start; }
+.scan-name { font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--navy); }
+.scan-note { margin: 0; font-size: 16px; }
+
+/* ---- Events and scanner on phones ---- */
+@media (max-width: 640px) {
+  .event-date {
+    flex: 1 1 100%; flex-direction: row; justify-content: flex-start; align-items: baseline;
+    gap: 8px; padding: 10px 20px;
+  }
+  .event-day { font-size: 24px; }
+  .event-month { font-size: 13px; }
+  .event-body { padding: 16px 20px 8px; }
+  .event-actions {
+    flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; align-items: center;
+    justify-content: flex-start; padding: 8px 20px 18px;
+  }
+  .attend { align-items: flex-start; }
+
+  /* The helper must see the result without scrolling: show it above the camera. */
+  .scan-result { order: -1; min-height: 0; padding: 18px; }
+  .scan-idle { padding: 14px 18px; }
+  .scan-result-title { font-size: 24px; }
+  .scan-photo { flex-basis: 96px; width: 96px; height: 115px; }
+  .scan-name { font-size: 20px; }
+  .scan-video { max-height: 320px; }
+}

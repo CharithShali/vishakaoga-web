@@ -9,6 +9,9 @@ import { env } from '../src/config/env.js';
 import { connectDb, disconnectDb } from '../src/db.js';
 import { Branch } from '../src/models/Branch.js';
 import { User } from '../src/models/User.js';
+import { nextSequence } from '../src/models/Counter.js';
+import { Event } from '../src/models/Event.js';
+import { formatMemberNo } from '../src/utils/memberNo.js';
 
 const BRANCHES = [
   { name: 'Kandy', code: 'KDY', order: 1 },
@@ -104,11 +107,29 @@ async function seedDemo(branchesByCode) {
       batchYear: 1990,
       roles: [{ name: 'secretary', code: null }],
     },
+    {
+      email: 'helper@demo.lk',
+      fullName: 'Colombo Event Helper',
+      code: 'COL',
+      batchYear: 2012,
+      roles: [{ name: 'eventHelper', code: 'COL' }],
+    },
   ];
 
   for (const d of demo) {
-    if (await User.exists({ email: d.email })) continue;
+    const existing = await User.findOne({ email: d.email });
+    if (existing) {
+      // Older demo members had no member number, so they couldn't be scanned.
+      if (!existing.memberNo) {
+        const seq = await nextSequence(`member-${d.code}`);
+        existing.memberNo = formatMemberNo(d.code, d.batchYear, seq);
+        await existing.save();
+      }
+      continue;
+    }
+    const seq = await nextSequence(`member-${d.code}`);
     await User.create({
+      memberNo: formatMemberNo(d.code, d.batchYear, seq),
       email: d.email,
       passwordHash,
       fullName: d.fullName,
@@ -123,7 +144,44 @@ async function seedDemo(branchesByCode) {
     });
   }
   console.log(`Demo members ready (password: DEMO_PASSWORD from .env, default demo-pass-123):`);
-  for (const d of demo) console.log(`  ${d.email}`);
+  for (const d of demo) {
+    const u = await User.findOne({ email: d.email }).select('memberNo');
+    console.log(`  ${d.email}  ${u?.memberNo || ''}`);
+  }
+
+  // A few events to try the Events page and the gate scanner with.
+  if (!(await Event.exists({}))) {
+    const hour = 60 * 60 * 1000;
+    const now = Date.now();
+    await Event.create([
+      {
+        title: 'Annual OGA Get-Together (demo)',
+        kind: 'Get-together',
+        venue: 'School main hall, Colombo',
+        description: 'Happening now, so you can test scanning cards at the gate.',
+        branch: null,
+        startsAt: new Date(now - hour),
+        endsAt: new Date(now + 3 * hour),
+      },
+      {
+        title: 'OGA vs School netball match (demo)',
+        kind: 'Sport',
+        venue: 'School grounds, Kandy',
+        branch: branchesByCode.KDY._id,
+        startsAt: new Date(now + 10 * 24 * hour),
+        endsAt: new Date(now + 10 * 24 * hour + 3 * hour),
+      },
+      {
+        title: 'Batch 2010 reunion (demo)',
+        kind: 'Reunion',
+        venue: 'Bandarawela',
+        branch: branchesByCode.BDW._id,
+        startsAt: new Date(now - 30 * 24 * hour),
+        endsAt: new Date(now - 30 * 24 * hour + 4 * hour),
+      },
+    ]);
+    console.log('Demo events created (one is happening now, for testing the scanner).');
+  }
 }
 
 try {

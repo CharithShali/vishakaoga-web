@@ -41,3 +41,27 @@ export function roleText(role) {
   if (role.name === 'admin') return label;
   return `${label} · ${role.branch?.name || 'All branches'}`;
 }
+
+// Which branches can the user act on with these roles? 'all' or a list of branch ids.
+export function branchScope(user, roleNames) {
+  if (!user?.roles) return [];
+  const ids = new Set();
+  for (const role of user.roles) {
+    if (role.name === 'admin') return 'all';
+    if (!roleNames.includes(role.name)) continue;
+    const roleBranch = branchIdOf(role);
+    if (roleBranch === null) return 'all';
+    ids.add(roleBranch);
+  }
+  return [...ids];
+}
+
+// Events (same rules as server/src/utils/eventPermissions.js)
+export const MANAGE_EVENT_ROLES = ['coordinator', 'secretary'];
+export const CHECKIN_ROLES = ['eventHelper', 'coordinator', 'secretary'];
+
+// branchId null/'' = a joint event for all branches, which needs a central role.
+export function canManageEvent(user, branchId) {
+  if (!branchId) return branchScope(user, MANAGE_EVENT_ROLES) === 'all';
+  return hasRole(user, MANAGE_EVENT_ROLES, branchId);
+}

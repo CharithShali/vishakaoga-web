@@ -36,6 +36,7 @@ export default function Layout() {
           </Link>
           <nav className="main-nav" aria-label="Main">
             <NavLink to="/" end>Home</NavLink>
+            <NavLink to="/events">Events</NavLink>
             {user && <NavLink to="/card">My card</NavLink>}
             {isCommittee(user) && (
               <NavLink to="/committee" className="nav-with-badge">

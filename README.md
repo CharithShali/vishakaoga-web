@@ -10,7 +10,7 @@ One Node app serves both the API and the website, so it runs as a single Render 
 
 - [x] **Step 1:** project setup, branches, login, committee roles
 - [x] **Step 2:** registration (incl. current profession) with photo crop, committee approval, QR membership card
-- [ ] Step 3: events, "I'm attending", QR scanning at the gate
+- [x] **Step 3:** events, "I'm attending", QR scanning at the gate, attendance lists
 - [ ] Step 4: fund records per branch
 - [ ] Step 5: posts, history pages, batch wall, Excel/PDF batch lists
 - [ ] Step 6: go live on Render with the .lk domain
@@ -105,6 +105,26 @@ server/
 | GET | `/api/registrations?branch=` | Coordinator (own branch) / secretary / admin |
 | POST | `/api/registrations/:id/approve` · `/reject` | Coordinator or secretary of that branch / admin |
 | GET | `/api/members/me` | Logged-in members (card details) |
+| GET | `/api/events?when=upcoming\|past&branch=` · `/api/events/:id` | Anyone (a branch filter includes joint events) |
+| POST · PUT · DELETE | `/api/events` · `/api/events/:id` | Coordinator (own branch) / secretary / admin; joint events need a central role |
+| POST · DELETE | `/api/events/:id/rsvp` | Logged-in members ("I'm attending") |
+| GET | `/api/events/:id/attendees` | Event helper / coordinator / secretary of that branch, admin |
+| POST | `/api/events/:id/checkin` `{ code }` | Same; result is `ok`, `already`, `removed`, `inactive` or `unknown` |
+| DELETE | `/api/events/:id/checkin/:userId` | Same (undo a mistaken scan) |
+
+## Events and the gate scanner
+
+- Times are typed and shown in **Sri Lanka time** (UTC+05:30), wherever the person is.
+- An event is for one branch or **all branches**. Coordinators manage their own branch's events;
+  joint events need the central Secretary or the main admin.
+- **Gate scanning** (`/events/:id/scan`): the phone camera reads the QR code on a member's card
+  (which holds only her member number) and shows her photo, branch and batch in green, or a
+  warning in amber/red if she is already in, removed, or unknown. Member numbers can be typed too.
+  Scanning opens 12 hours before the start and closes 24 hours after the end.
+- Phones only allow the camera on **https://** sites, so on a phone the scanner works once the
+  site is live (step 6). On your PC, `http://localhost` is allowed.
+- `npm run seed:demo` adds an event helper (`helper@demo.lk`), member numbers for the demo
+  members, and three demo events, one of them happening now for testing the scanner.
 
 ## How registration works
 

@@ -484,7 +484,16 @@ th.num { text-align: right; }
 .remind-bar { margin: 0 0 14px; }
 .btn-whatsapp { background: #1f7a45; border-color: #1f7a45; color: var(--white); }
 .btn-whatsapp:hover { color: var(--white); filter: brightness(1.1); }
-.nav-bell { padding: 10px 10px !important; }
+/* Bell: the count sits on the bell's top-right corner, like on a phone */
+.nav-bell { position: relative; padding: 10px 18px 10px 12px !important; display: inline-flex; }
+.nav-bell .bell-badge {
+  position: absolute; top: 2px; left: 25px; /* starts at the bell's middle, grows right */
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+  background: var(--gold); color: var(--navy);
+  font-size: 11px; font-weight: 700; line-height: 18px; text-align: center;
+  box-shadow: 0 0 0 2px var(--navy); /* thin navy ring so it stands off the bell */
+  pointer-events: none;
+}
 .notification-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
 .notification { display: flex; flex-direction: column; gap: 10px; }
 .notification.unread { border-color: var(--gold); box-shadow: inset 4px 0 0 var(--gold); }

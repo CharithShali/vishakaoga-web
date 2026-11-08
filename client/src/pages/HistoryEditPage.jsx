@@ -1,7 +1,10 @@
-import { useEffect, useId, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import ImagePicker from '../components/ImagePicker.jsx';
+
+// Pickers report a chosen-but-not-added picture here, so Save waits for it.
+const PendingPictures = createContext(() => {});
 
 // Edit the whole history page (central Secretary / main admin). Saved in one go.
 export default function HistoryEditPage() {
@@ -10,6 +13,8 @@ export default function HistoryEditPage() {
   const [branches, setBranches] = useState([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [waiting, setWaiting] = useState(0);
+  const reportPending = useCallback((on) => setWaiting((n) => Math.max(0, n + (on ? 1 : -1))), []);
 
   useEffect(() => {
     api('/history')
@@ -49,6 +54,7 @@ export default function HistoryEditPage() {
 
   async function save(e) {
     e.preventDefault();
+    if (waiting) return;
     setBusy(true);
     setError('');
     try {
@@ -75,6 +81,7 @@ export default function HistoryEditPage() {
         <strong> Save the page</strong> at the bottom.
       </p>
 
+      <PendingPictures.Provider value={reportPending}>
       <form onSubmit={save} noValidate>
         <section className="card section form">
           <h2>Our story</h2>
@@ -139,7 +146,7 @@ export default function HistoryEditPage() {
               </label>
               <div className="field">
                 Photo of the school
-                <ImagePicker shape="wide" value={b.photo} onChange={(photo) => setBranch(i, { photo })} />
+                <Picker shape="wide" value={b.photo} onChange={(photo) => setBranch(i, { photo })} />
               </div>
               <p className="muted small">
                 The batch wall starts at the "since" year.
@@ -220,12 +227,14 @@ export default function HistoryEditPage() {
 
         {error && <p className="alert alert-error section" role="alert">{error}</p>}
         <div className="row-actions section sticky-save">
-          <button type="submit" className="btn btn-navy btn-lg" disabled={busy}>
+          <button type="submit" className="btn btn-navy btn-lg" disabled={busy || waiting > 0}>
             {busy ? 'Saving…' : 'Save the page'}
           </button>
           <Link to="/history">Cancel</Link>
+          {waiting > 0 && <span className="small">Press "Use this picture" on the picture you chose first.</span>}
         </div>
       </form>
+      </PendingPictures.Provider>
     </div>
   );
 }
@@ -258,7 +267,7 @@ function RowList({ rows, onChange, fields, empty, addLabel }) {
                     {f.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 ) : f.type === 'photo' ? (
-                  <ImagePicker shape="portrait" value={row[f.key]} onChange={(v) => update(i, f.key, v)} />
+                  <Picker shape="portrait" value={row[f.key]} onChange={(v) => update(i, f.key, v)} />
                 ) : (
                   <input id={`${listId}-${f.key}-${i}`} type="text" value={row[f.key] || ''} placeholder={f.placeholder}
                     onChange={(e) => update(i, f.key, e.target.value)} />
@@ -281,4 +290,9 @@ function RowList({ rows, onChange, fields, empty, addLabel }) {
       </button>
     </div>
   );
+}
+
+function Picker(props) {
+  const report = useContext(PendingPictures);
+  return <ImagePicker {...props} onPendingChange={report} />;
 }

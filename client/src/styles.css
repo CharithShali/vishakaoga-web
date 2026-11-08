@@ -710,3 +710,4 @@ section > .row-card + .row-card { margin-top: 14px; }
   .wall-panel { scroll-margin-top: 12px; }
 }
 .field-label .muted { font-weight: 400; }
+.picker-reminder { border: 1px solid var(--gold); }

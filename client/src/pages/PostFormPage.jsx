@@ -20,6 +20,7 @@ export default function PostFormPage() {
   const [loaded, setLoaded] = useState(!editing);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
+  const [picturePending, setPicturePending] = useState(false);
 
   useEffect(() => {
     api('/branches').then((d) => setBranches(d.branches)).catch(() => {});
@@ -56,6 +57,7 @@ export default function PostFormPage() {
   const field = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   async function save(status) {
+    if (picturePending) return; // Enter key while a picture is waiting
     setError('');
     setBusy(status);
     try {
@@ -109,7 +111,8 @@ export default function PostFormPage() {
         </label>
         <div className="field">
           <span className="field-label">Picture <span className="muted small">(optional; everyone can see it)</span></span>
-          <ImagePicker shape="wide" value={form.cover} onChange={(cover) => setForm((f) => ({ ...f, cover }))} />
+          <ImagePicker shape="wide" value={form.cover} onChange={(cover) => setForm((f) => ({ ...f, cover }))}
+            onPendingChange={setPicturePending} />
         </div>
         <label className="field">
           The post
@@ -123,11 +126,14 @@ export default function PostFormPage() {
         </label>
 
         {error && <p className="alert alert-error" role="alert">{error}</p>}
+        {picturePending && (
+          <p className="alert" role="status">Finish adding the picture first (press "Use this picture"), then save.</p>
+        )}
         <div className="row-actions">
-          <button type="submit" className="btn btn-navy btn-lg" disabled={Boolean(busy)}>
+          <button type="submit" className="btn btn-navy btn-lg" disabled={Boolean(busy) || picturePending}>
             {busy === 'published' ? 'Saving…' : editing && wasPublished ? 'Save changes' : 'Publish'}
           </button>
-          <button type="button" className="btn btn-lg" disabled={Boolean(busy)} onClick={() => save('draft')}>
+          <button type="button" className="btn btn-lg" disabled={Boolean(busy) || picturePending} onClick={() => save('draft')}>
             {busy === 'draft' ? 'Saving…' : wasPublished ? 'Unpublish (back to draft)' : 'Save as draft'}
           </button>
           <Link to={editing ? `/news/${id}` : '/news'}>Cancel</Link>

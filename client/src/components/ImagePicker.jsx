@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiForm } from '../api.js';
 import PhotoCropper from './PhotoCropper.jsx';
 
@@ -9,11 +9,21 @@ const SHAPES = {
 
 // Pick, crop and upload a public picture (news cover, branch photo, honours photo).
 // value = { id, url } or null; onChange gets the new { id, url } or null.
-export default function ImagePicker({ shape = 'wide', value, onChange }) {
+// onPendingChange(true) while a picture is chosen but not uploaded yet, so the
+// form can stop "Save" from quietly leaving it out.
+export default function ImagePicker({ shape = 'wide', value, onChange, onPendingChange }) {
   const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const s = SHAPES[shape];
+
+  const pending = (open && picked) || busy;
+  useEffect(() => {
+    if (!pending) return undefined;
+    onPendingChange?.(true);
+    return () => onPendingChange?.(false);
+  }, [pending, onPendingChange]);
 
   async function upload(blob) {
     setBusy(true);
@@ -24,6 +34,7 @@ export default function ImagePicker({ shape = 'wide', value, onChange }) {
       const { id, url } = await apiForm(`/images?shape=${shape}`, form);
       onChange({ id, url });
       setOpen(false);
+      setPicked(false);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -39,14 +50,22 @@ export default function ImagePicker({ shape = 'wide', value, onChange }) {
       {error && <p className="alert alert-error" role="alert">{error}</p>}
       {busy && <p className="muted small">Uploading the picture…</p>}
 
+      {open && picked && !busy && (
+        <p className="alert picker-reminder" role="status">
+          Press <strong>Use this picture</strong> to add it. Until then it is not saved with the page.
+        </p>
+      )}
+
       {open ? (
         <PhotoCropper
+          useLabel="Use this picture"
+          onPickedChange={setPicked}
           aspect={s.aspect}
           maxWidth={s.maxWidth}
           label={s.label}
           hint={s.hint}
           onDone={upload}
-          onCancel={() => setOpen(false)}
+          onCancel={() => { setOpen(false); setPicked(false); }}
         />
       ) : (
         <div className="row-actions">

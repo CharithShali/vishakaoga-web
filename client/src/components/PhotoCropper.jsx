@@ -14,6 +14,8 @@ export default function PhotoCropper({
   label = 'Choose a clear photo of your face',
   hint = 'Drag the photo so your face sits in the middle of the frame.',
   maxWidth = 800,
+  useLabel = 'Use this photo',
+  onPickedChange,
 }) {
   const [src, setSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -24,6 +26,11 @@ export default function PhotoCropper({
 
   // Free the browser's copy of the photo when it is no longer shown.
   useEffect(() => () => src && URL.revokeObjectURL(src), [src]);
+
+  // Tell the form a photo is chosen but not used yet, so it can wait for it.
+  useEffect(() => {
+    onPickedChange?.(Boolean(src));
+  }, [src, onPickedChange]);
 
   function handleFile(e) {
     setError('');
@@ -89,7 +96,7 @@ export default function PhotoCropper({
       <div className="row-actions">
         {src && (
           <button type="button" className="btn btn-navy" onClick={usePhoto} disabled={busy || !area}>
-            {busy ? 'Preparing…' : 'Use this photo'}
+            {busy ? 'Preparing…' : useLabel}
           </button>
         )}
         {onCancel && (

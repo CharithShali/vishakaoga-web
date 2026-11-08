@@ -52,7 +52,7 @@ Open **http://localhost:5173** and log in with your admin email. Commit the
 | --- | --- |
 | `npm run dev` | Server and website together, reloading on changes |
 | `npm run seed` | Creates the branches and the main admin |
-| `npm run seed:demo` | Adds test members (refused when `NODE_ENV=production`) |
+| `npm run seed:demo` | Adds test members and resets their password to `DEMO_PASSWORD` (refused when `NODE_ENV=production`) |
 | `npm test` | Runs the server unit tests |
 | `npm run build` | Builds the website into `client/dist` |
 | `npm start` | Runs the server, which also serves the built website |

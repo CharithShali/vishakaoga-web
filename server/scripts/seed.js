@@ -83,7 +83,8 @@ async function seedDemo(branchesByCode) {
     console.log('Skipping demo members: NODE_ENV is production.');
     return;
   }
-  const passwordHash = await bcrypt.hash(process.env.DEMO_PASSWORD || 'demo-pass-123', 12);
+  const demoPassword = (process.env.DEMO_PASSWORD || 'demo-pass-123').trim();
+  const passwordHash = await bcrypt.hash(demoPassword, 12);
   const demo = [
     {
       email: 'kandy.member@demo.lk',
@@ -139,12 +140,14 @@ async function seedDemo(branchesByCode) {
   for (const d of demo) {
     const existing = await User.findOne({ email: d.email });
     if (existing) {
+      // Demo accounts always get the current DEMO_PASSWORD, so running this again fixes logins.
+      existing.passwordHash = passwordHash;
       // Older demo members had no member number, so they couldn't be scanned.
       if (!existing.memberNo) {
         const seq = await nextSequence(`member-${d.code}`);
         existing.memberNo = formatMemberNo(d.code, d.batchYear, seq);
-        await existing.save();
       }
+      await existing.save();
       continue;
     }
     const seq = await nextSequence(`member-${d.code}`);
@@ -163,7 +166,7 @@ async function seedDemo(branchesByCode) {
       })),
     });
   }
-  console.log(`Demo members ready (password: DEMO_PASSWORD from .env, default demo-pass-123):`);
+  console.log(`Demo accounts ready. Password for all of them: ${demoPassword}`);
   for (const d of demo) {
     const u = await User.findOne({ email: d.email }).select('memberNo');
     console.log(`  ${d.email}  ${u?.memberNo || ''}`);

@@ -2,6 +2,7 @@
   "name": "vishakaoga-web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Website for the Visakha Vidyalaya Old Girls' Association (OGA)",
   "workspaces": [
     "server",

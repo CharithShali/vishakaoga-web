@@ -18,10 +18,14 @@ function required(name) {
 }
 
 const nodeEnv = process.env.NODE_ENV || 'development';
+// On Vercel the site is always on https, so treat it like the live site
+// (secure cookies, no demo seeding) even if NODE_ENV isn't set there.
+const onVercel = Boolean(process.env.VERCEL);
 
 export const env = {
   nodeEnv,
-  isProd: nodeEnv === 'production',
+  isProd: nodeEnv === 'production' || onVercel,
+  onVercel,
   port: Number(process.env.PORT) || 5000,
   mongoUri: required('MONGODB_URI'),
   jwtSecret: required('JWT_SECRET'),

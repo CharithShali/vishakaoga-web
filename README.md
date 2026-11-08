@@ -226,7 +226,23 @@ Excel files keep the header row fixed while scrolling and printing, and print la
 wide. The built-in PDF fonts can't show Sinhala or Tamil letters (they print as "?"); Excel shows
 everything.
 
-## Deploying on Render (step 6)
+## Deploying on Vercel
+
+`vercel.json` and `api/index.js` are ready: Vercel serves the built pages from `client/dist` and runs
+the whole Express API as one function (`api/index.js`). No other changes are needed.
+
+1. Vercel → **Add New → Project** → import `CharithShali/vishakaoga-web`. Leave the root directory as
+   it is (the repository root); `vercel.json` sets the build.
+2. Under **Environment Variables** add `MONGODB_URI`, `JWT_SECRET` (a new long random one),
+   `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET`. Don't add `NODE_ENV`
+   (it would skip the tools needed to build the pages).
+3. MongoDB Atlas → **Network Access** → allow `0.0.0.0/0`: Vercel doesn't have fixed addresses.
+4. Deploy. Then Vercel → project **Settings → Functions → Function Region**: choose the region
+   nearest your Atlas cluster (e.g. Mumbai `bom1` for AWS ap-south-1, Singapore `sin1`), and redeploy.
+
+Run `npm run seed` / `seed:demo` from your own computer; they talk to the same Atlas database.
+
+## Deploying on Render (alternative)
 
 - Build command: `npm install --include=dev && npm run build`
 - Start command: `npm start`

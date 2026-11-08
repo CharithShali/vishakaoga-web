@@ -15,6 +15,11 @@ import { eventsRouter } from './routes/events.js';
 import { fundsRouter } from './routes/funds.js';
 import { feesRouter } from './routes/fees.js';
 import { notificationsRouter } from './routes/notifications.js';
+import { postsRouter } from './routes/posts.js';
+import { imagesRouter } from './routes/images.js';
+import { historyRouter } from './routes/history.js';
+import { batchesRouter } from './routes/batches.js';
+import { exportsRouter } from './routes/exports.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(here, '../../client/dist');
@@ -46,6 +51,11 @@ export function createApp() {
   app.use('/api/funds', fundsRouter);
   app.use('/api/fees', feesRouter);
   app.use('/api/notifications', notificationsRouter);
+  app.use('/api/posts', postsRouter);
+  app.use('/api/images', imagesRouter);
+  app.use('/api/history', historyRouter);
+  app.use('/api/batches', batchesRouter);
+  app.use('/api/exports', exportsRouter);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found.' }));
 
   // ---- Website (the built React app) ----
@@ -75,9 +85,9 @@ export function createApp() {
     if (err?.name === 'MulterError') {
       const message =
         err.code === 'LIMIT_FILE_SIZE'
-          ? 'The photo is too large. Please choose it again so it can be shrunk first.'
-          : 'The photo could not be uploaded. Please try again.';
-      return res.status(400).json({ error: message, field: 'photo' });
+          ? 'The picture is too large. Please choose it again so it can be shrunk first.'
+          : 'The picture could not be uploaded. Please try again.';
+      return res.status(400).json({ error: message, field: err.field || 'photo' });
     }
     if (err?.status && err.status < 500) {
       return res.status(err.status).json({ error: err.message });

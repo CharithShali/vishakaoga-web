@@ -15,8 +15,14 @@ import RecordMoneyPage from './pages/RecordMoneyPage.jsx';
 import FeesPage from './pages/FeesPage.jsx';
 import NotificationsPage from './pages/NotificationsPage.jsx';
 import MemberDetailPage from './pages/MemberDetailPage.jsx';
+import NewsPage from './pages/NewsPage.jsx';
+import PostPage from './pages/PostPage.jsx';
+import PostFormPage from './pages/PostFormPage.jsx';
+import HistoryPage from './pages/HistoryPage.jsx';
+import HistoryEditPage from './pages/HistoryEditPage.jsx';
+import BatchWallPage from './pages/BatchWallPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
-import { ROLES, MANAGE_EVENT_ROLES, CHECKIN_ROLES } from './auth/permissions.js';
+import { ROLES, MANAGE_EVENT_ROLES, CHECKIN_ROLES, POST_ROLES } from './auth/permissions.js';
 
 export default function App() {
   return (
@@ -115,6 +121,34 @@ export default function App() {
             </RequireRole>
           }
         />
+        <Route path="news" element={<NewsPage />} />
+        <Route
+          path="news/new"
+          element={
+            <RequireRole roles={POST_ROLES}>
+              <PostFormPage />
+            </RequireRole>
+          }
+        />
+        <Route path="news/:id" element={<PostPage />} />
+        <Route
+          path="news/:id/edit"
+          element={
+            <RequireRole roles={POST_ROLES}>
+              <PostFormPage />
+            </RequireRole>
+          }
+        />
+        <Route path="history" element={<HistoryPage />} />
+        <Route
+          path="history/edit"
+          element={
+            <RequireRole roles={['secretary']}>
+              <HistoryEditPage />
+            </RequireRole>
+          }
+        />
+        <Route path="batches" element={<BatchWallPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

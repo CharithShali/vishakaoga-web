@@ -37,10 +37,16 @@ const QUALITY_STEPS = [80, 70, 60, 50, 40, 30];
  * .rotate() fixes sideways phone photos using their orientation data.
  */
 export async function prepareCardPhoto(buffer, maxKb = PHOTO_MAX_KB) {
+  return shrinkToFit(buffer, 400, 480, maxKb);
+}
+
+// Resize to width x height (cropping to fill), then lower the WebP quality step by
+// step until it is under maxKb. Last resort: 80% of the size.
+async function shrinkToFit(buffer, width, height, maxKb) {
   const limit = maxKb * 1024;
   const sized = await sharp(buffer)
     .rotate()
-    .resize(400, 480, { fit: 'cover', position: 'attention' })
+    .resize(width, height, { fit: 'cover', position: 'attention' })
     .toBuffer();
 
   let out;
@@ -48,9 +54,8 @@ export async function prepareCardPhoto(buffer, maxKb = PHOTO_MAX_KB) {
     out = await sharp(sized).webp({ quality }).toBuffer();
     if (out.length <= limit) return out;
   }
-  // Still too big at the lowest quality: shrink to 320 x 384 as a last resort.
   for (const quality of QUALITY_STEPS) {
-    out = await sharp(sized).resize(320, 384).webp({ quality }).toBuffer();
+    out = await sharp(sized).resize(Math.round(width * 0.8), Math.round(height * 0.8)).webp({ quality }).toBuffer();
     if (out.length <= limit) return out;
   }
   return out;
@@ -93,5 +98,61 @@ export async function deleteCardPhoto(photoId) {
     await cloudinary.uploader.destroy(photoId, { type: 'authenticated', resource_type: 'image' });
   } catch (err) {
     console.error(`Could not delete photo ${photoId}:`, err.message);
+  }
+}
+
+// ---------- Public pictures (news covers, branch photos, "made us proud") ----------
+// These are meant for everyone, so they are stored as normal public images.
+
+const PUBLIC_FOLDER = 'vishakaoga/public';
+
+// Shapes the website uses. The browser crops to the same shape first.
+export const IMAGE_SHAPES = {
+  wide: { width: 1200, height: 675, maxKb: 180 }, // 16:9 news covers, branch photos
+  portrait: { width: 400, height: 480, maxKb: 60 }, // 5:6 people
+};
+
+export function preparePublicImage(buffer, shape) {
+  const s = IMAGE_SHAPES[shape];
+  if (!s) throw Object.assign(new Error('Unknown picture shape.'), { status: 400 });
+  return shrinkToFit(buffer, s.width, s.height, s.maxKb);
+}
+
+/** Upload a prepared public picture. Returns its Cloudinary public id. */
+export async function uploadPublicImage(buffer) {
+  setup();
+  const result = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: PUBLIC_FOLDER, type: 'upload', resource_type: 'image', format: 'webp' },
+      (err, res) => (err ? reject(err) : resolve(res))
+    );
+    stream.end(buffer);
+  });
+  return result.public_id;
+}
+
+/** Only ids made by uploadPublicImage are accepted from the browser. */
+export function isPublicImageId(id) {
+  return typeof id === 'string' && id.startsWith(`${PUBLIC_FOLDER}/`) && /^[\w/-]+$/.test(id);
+}
+
+export function publicImageUrl(id) {
+  if (!id) return null;
+  try {
+    setup();
+  } catch {
+    return null;
+  }
+  return cloudinary.url(id, { secure: true, format: 'webp' });
+}
+
+/** Delete a public picture that is no longer used. Never throws. */
+export async function deletePublicImage(id) {
+  if (!isPublicImageId(id)) return;
+  try {
+    setup();
+    await cloudinary.uploader.destroy(id, { resource_type: 'image' });
+  } catch (err) {
+    console.error(`Could not delete picture ${id}:`, err.message);
   }
 }

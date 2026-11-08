@@ -38,7 +38,9 @@ export default function Layout() {
           </Link>
           <nav className="main-nav" aria-label="Main">
             <NavLink to="/" end>Home</NavLink>
+            <NavLink to="/news">News</NavLink>
             <NavLink to="/events">Events</NavLink>
+            <NavLink to="/history">History</NavLink>
             {user && <NavLink to="/funds">Funds</NavLink>}
             {user && <NavLink to="/card">My card</NavLink>}
             {isCommittee(user) && (
@@ -84,7 +86,9 @@ export default function Layout() {
       <footer className="site-footer">
         <div className="container footer-row">
           <span>Visakha Vidyalaya OGA · Kandy · Bandarawela · Colombo</span>
-          <span>Questions? Contact your branch coordinator.</span>
+          <span>
+            <Link to="/batches">Batch wall</Link> · <Link to="/history">Our story</Link> · Questions? Contact your branch coordinator.
+          </span>
         </div>
       </footer>
     </div>

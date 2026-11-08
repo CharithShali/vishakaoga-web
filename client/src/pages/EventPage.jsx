@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.js';
+import DownloadButtons from '../components/DownloadButtons.jsx';
 import AttendButton from '../components/AttendButton.jsx';
 import { longDate, timeOnly, timeRange } from '../utils/time.js';
 
@@ -126,6 +127,7 @@ function AttendeeList({ eventId, isPast }) {
           )}
         </div>
       </div>
+      <DownloadButtons path={`/exports/events/${eventId}`} label="Download the attendance list:" />
       <div className="table-wrap">
         <table>
           <thead>

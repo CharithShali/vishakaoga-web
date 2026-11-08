@@ -13,7 +13,7 @@ export const feesRouter = Router();
 
 // Membership fees: the Secretary and Treasurer (their branch, or all if central)
 // and the main admin.
-const FEE_ROLES = ['secretary', 'treasurer'];
+export const FEE_ROLES = ['secretary', 'treasurer'];
 const OBJECT_ID = /^[a-f0-9]{24}$/i;
 const MAX_MEMBERS = 3000;
 
@@ -23,7 +23,7 @@ feesRouter.use(requireRole(...FEE_ROLES));
  * Active members in her branches with, for one year: paid or not, how much,
  * when, and the last reminder sent. Shared by the list and by "remind all unpaid".
  */
-async function feeStatus(user, { year, branch, q, memberIds }) {
+export async function feeStatus(user, { year, branch, q, memberIds }) {
   const scoped = scopedBranchFilter(user, FEE_ROLES, branch);
   if (scoped.error) return scoped;
   const search = buildMemberSearch(q, '');

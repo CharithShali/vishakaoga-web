@@ -67,7 +67,7 @@ async function present(events, user) {
   });
 }
 
-async function loadEvent(req, res) {
+export async function loadEvent(req, res) {
   if (!OBJECT_ID.test(req.params.id)) {
     res.status(404).json({ error: 'Event not found.' });
     return null;
@@ -239,7 +239,11 @@ eventsRouter.get('/:id/attendees', requireRole(...CHECKIN_ROLES), async (req, re
   if (!canCheckIn(req.user, branchIdOf(event))) {
     return res.status(403).json({ error: 'This list is for the committee of this branch.' });
   }
+  res.json(await attendeeList(event));
+});
 
+/** Everyone who said "I'm attending" or was scanned in, by name. Also used by the downloads. */
+export async function attendeeList(event) {
   const [rsvps, checkins] = await Promise.all([
     EventRsvp.find({ event: event._id }).populate(personFields),
     EventCheckin.find({ event: event._id }).populate(personFields).populate('by', 'fullName'),
@@ -271,8 +275,8 @@ eventsRouter.get('/:id/attendees', requireRole(...CHECKIN_ROLES), async (req, re
   }
 
   const attendees = [...people.values()].sort((a, b) => a.fullName.localeCompare(b.fullName));
-  res.json({ attendees, goingCount: rsvps.length, attendedCount: checkins.length });
-});
+  return { attendees, goingCount: rsvps.length, attendedCount: checkins.length };
+}
 
 // ---------- scanning at the gate ----------
 

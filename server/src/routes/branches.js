@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Branch } from '../models/Branch.js';
+import { publicImageUrl } from '../services/photos.js';
 
 export const branchesRouter = Router();
 
@@ -7,6 +8,11 @@ export const branchesRouter = Router();
 branchesRouter.get('/', async (_req, res) => {
   const branches = await Branch.find({ active: true })
     .sort({ order: 1, name: 1 })
-    .select('name code order address foundedYear');
-  res.json({ branches });
+    .select('name code order address foundedYear photoId');
+  res.json({
+    branches: branches.map((b) => {
+      const { photoId, ...rest } = b.toJSON();
+      return { ...rest, photoUrl: publicImageUrl(photoId) };
+    }),
+  });
 });

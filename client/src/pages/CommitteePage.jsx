@@ -4,11 +4,14 @@ import { api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { ROLES, ROLE_LABELS, hasRole, isAdmin, roleText } from '../auth/permissions.js';
 import PendingRegistrations from '../components/PendingRegistrations.jsx';
+import DownloadButtons from '../components/DownloadButtons.jsx';
 import { SCHOOL_ROLES } from '../options.js';
 
 const VIEW_ROLES = ['secretary', 'coordinator'];
 // Who can open a member's page (details and payment history)
 const DETAIL_ROLES = ['secretary', 'treasurer'];
+const THIS_YEAR = new Date().getFullYear();
+const BATCH_YEARS = Array.from({ length: THIS_YEAR - 1917 + 1 }, (_, i) => THIS_YEAR - i);
 
 export default function CommitteePage() {
   const { user } = useAuth();
@@ -24,6 +27,7 @@ export default function CommitteePage() {
   const [query, setQuery] = useState(''); // the same, after a short pause in typing
   const [roleFilter, setRoleFilter] = useState('');
   const [total, setTotal] = useState(0);
+  const [exportBatch, setExportBatch] = useState(''); // batch year for the download, '' = all
 
   // Search 300 ms after she stops typing, not on every key.
   useEffect(() => {
@@ -157,6 +161,19 @@ export default function CommitteePage() {
               {loading ? 'Searching…' : `${total} ${total === 1 ? 'member' : 'members'}${total > members.length ? ` (showing first ${members.length})` : ''}`}
             </span>
           </div>
+
+          {!showingRemoved && (
+            <div className="export-bar">
+              <label className="field">
+                Download the member list for
+                <select value={exportBatch} onChange={(e) => setExportBatch(e.target.value)}>
+                  <option value="">All batches (grouped by batch)</option>
+                  {BATCH_YEARS.map((y) => <option key={y} value={y}>Batch {y}</option>)}
+                </select>
+              </label>
+              <DownloadButtons path="/exports/members" params={{ branch: branchFilter, batch: exportBatch }} label="" />
+            </div>
+          )}
 
           <p className="muted small">
             {hasRole(user, DETAIL_ROLES)

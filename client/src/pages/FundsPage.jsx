@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { useAuth } from '../auth/AuthContext.jsx';
+import { isCommittee } from '../auth/permissions.js';
+import DownloadButtons from '../components/DownloadButtons.jsx';
 import { lkr, shortDate } from '../utils/money.js';
 
 const THIS_YEAR = String(new Date().getFullYear());
 
 export default function FundsPage() {
+  const { user } = useAuth();
   const [meta, setMeta] = useState(null); // funds, years, branches, what she may do
   const [branch, setBranch] = useState(''); // '' all · 'central' · branch id
   const [year, setYear] = useState(THIS_YEAR); // 'all' or '2026'
@@ -58,10 +62,14 @@ export default function FundsPage() {
         </div>
       </div>
 
-      {canRecord && (
+      {(canRecord || isCommittee(user)) && (
         <div className="row-actions record-buttons">
-          <Link to="/funds/record?type=in" className="btn btn-navy">+ Record money in</Link>
-          <Link to="/funds/record?type=out" className="btn">− Record money out</Link>
+          {canRecord && <Link to="/funds/record?type=in" className="btn btn-navy">+ Record money in</Link>}
+          {canRecord && <Link to="/funds/record?type=out" className="btn">− Record money out</Link>}
+          {isCommittee(user) && (
+            <DownloadButtons path="/exports/funds" params={{ branch, year }}
+              label={`Statement (${branch === '' ? 'all branches' : branch === 'central' ? 'central' : meta.branches.find((b) => b._id === branch)?.name}, ${periodLabel}):`} />
+          )}
         </div>
       )}
 

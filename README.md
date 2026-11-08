@@ -12,7 +12,7 @@ One Node app serves both the API and the website, so it runs as a single Render 
 - [x] **Step 2:** registration (incl. current profession) with photo crop, committee approval, QR membership card
 - [x] **Step 3:** events, "I'm attending", QR scanning at the gate, attendance lists
 - [x] **Step 4:** fund records per branch, funds with goals, membership fees on the card
-- [ ] Step 5: posts, history pages, batch wall, Excel/PDF batch lists
+- [x] **Step 5:** news posts, history page, batch wall, Excel/PDF downloads
 - [ ] Step 6: go live on Render with the .lk domain
 
 ## Run it on your computer
@@ -80,11 +80,11 @@ client/                 React website (Vite)
   src/pages/            One file per page
   src/auth/             Login state and role helpers
 server/
-  src/models/           MongoDB models: Branch, User, Counter
+  src/models/           MongoDB models: Branch, User, Counter, Event, Fund, Post, History…
   src/services/         Photo resize + Cloudinary
-  src/routes/           API: /api/auth, /api/branches, /api/users
+  src/routes/           API: auth, branches, users, events, funds, posts, history, batches, exports…
   src/middleware/       Login cookie, role checks, input validation
-  src/utils/            Permission rules (+ tests)
+  src/utils/            Permission rules, Excel/PDF writers (+ tests)
   scripts/seed.js       Branches + first admin
 .env.example            Settings template (copy to .env)
 ```
@@ -112,6 +112,12 @@ server/
 | GET | `/api/events/:id/attendees` | Event helper / coordinator / secretary of that branch, admin |
 | POST | `/api/events/:id/checkin` `{ code }` | Same; result is `ok`, `already`, `removed`, `inactive` or `unknown` |
 | DELETE | `/api/events/:id/checkin/:userId` | Same (undo a mistaken scan) |
+| GET | `/api/posts?branch=&category=&skip=&published=1` · `/api/posts/:id` | Anyone (members-only posts need a login; drafts only for their editors) |
+| POST · PUT · DELETE | `/api/posts` · `/api/posts/:id` | Coordinator (own branch) / secretary / admin; all-branch posts need a central role |
+| POST | `/api/images?shape=wide\|portrait` (multipart `image`) → `{ id, url }` | Coordinator / secretary / admin |
+| GET · PUT | `/api/history` | Anyone reads; central Secretary / admin saves |
+| GET | `/api/batches` · `/api/batches/:branch/:year` | Anyone (counts) · logged-in members (names) |
+| GET | `/api/exports/members?branch=&batch=` · `/events/:id` · `/funds?branch=&year=` · `/fees?year=&branch=&show=` with `format=xlsx\|pdf` | See the downloads table |
 
 ## Fund records
 
@@ -185,6 +191,40 @@ server/
 All image code is in `server/src/services/photos.js`, so changing image service later only
 touches that file. Branch houses can be listed per branch (`houses` on the Branch record in
 Atlas); until then the form shows a text box.
+
+## News, history and the batch wall (step 5)
+
+- **News** (`/news`): branch coordinators post for their branch; the central Secretary and the main
+  admin also post for all branches. A post has a kind (Notice, Reunion…), a short summary, an
+  optional 16:9 picture and the text (a blank line starts a new paragraph; links become clickable).
+  **Save as draft** keeps it for the committee only; **Members only** hides it from visitors.
+  The three newest posts show on the home page.
+- **History** (`/history`): the school story, motto, timeline, the three branches (since, address,
+  principal, photo), this term's committee, past presidents and "members who made us proud".
+  The central Secretary or the main admin edits it all at `/history/edit` and saves once.
+- **Batch wall** (`/batches`): for each branch, every year from its "since" year to now, filled in
+  when someone from that batch has joined and dashed when nobody has yet. Anyone sees the numbers;
+  only logged-in members see the names (plus class, house, city, and work if she chose to share it).
+- **Pictures** for news, branches and honours are public on Cloudinary (`vishakaoga/public`), cut to
+  shape in the browser and shrunk with `sharp`. Member card photos stay private as before.
+- `npm run seed:demo` adds four demo posts (one draft, one members-only) and, only if the real one
+  hasn't been written yet, a history page clearly marked "sample".
+
+## Excel and PDF downloads
+
+Each list has **Excel** and **PDF** buttons. The files are made on the server (Excel by our own
+small writer in `server/src/utils/xlsx.js`, PDF with `pdf-lib`), so they work the same on phones.
+
+| Where | What you get | Who |
+| --- | --- | --- |
+| Committee → members | Member list grouped by branch and batch, or one batch: member no., names, class, house, roles at school, phone, email, city, profession | Secretary / coordinator (own branch) / admin |
+| Event page → Who's coming | Attendance: said attending, time scanned in, scanned by | Event helper / coordinator / secretary of that branch, admin |
+| Funds | Fund statement for the chosen branch and year, with totals (voided records left out) | Committee |
+| Membership fees | Paid / not paid for the year, amount, date, reminders sent | Secretary / treasurer (own branch) / admin |
+
+Excel files keep the header row fixed while scrolling and printing, and print landscape on one page
+wide. The built-in PDF fonts can't show Sinhala or Tamil letters (they print as "?"); Excel shows
+everything.
 
 ## Deploying on Render (step 6)
 

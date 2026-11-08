@@ -65,3 +65,17 @@ export function canManageEvent(user, branchId) {
   if (!branchId) return branchScope(user, MANAGE_EVENT_ROLES) === 'all';
   return hasRole(user, MANAGE_EVENT_ROLES, branchId);
 }
+
+// News posts and the history page (same rules as server/src/utils/postPermissions.js)
+export const POST_ROLES = ['coordinator', 'secretary'];
+
+// branchId null/'' = a post for all branches, which needs a central role.
+export function canManagePost(user, branchId) {
+  if (!branchId) return branchScope(user, POST_ROLES) === 'all';
+  return hasRole(user, POST_ROLES, branchId);
+}
+
+// Central Secretary or main admin
+export function canEditHistory(user) {
+  return branchScope(user, ['secretary']) === 'all';
+}

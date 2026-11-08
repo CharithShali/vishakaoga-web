@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import DownloadButtons from '../components/DownloadButtons.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { hasRole } from '../auth/permissions.js';
 import { lkr, shortDate } from '../utils/money.js';
@@ -145,6 +146,7 @@ export default function FeesPage() {
             <input type="search" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Name, member number or batch year" />
           </label>
+          <DownloadButtons path="/exports/fees" params={{ year, branch, show }} label="Download:" />
         </div>
 
         {show !== 'paid' && data && data.unpaidCount > 0 && (

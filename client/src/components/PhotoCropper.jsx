@@ -6,7 +6,15 @@ const MAX_MB = 20;
 
 // Pick a photo, then drag and zoom so the face sits in the card frame (5:6).
 // Calls onDone(blob) with the cropped JPEG when she clicks "Use this photo".
-export default function PhotoCropper({ onDone, onCancel }) {
+// Other shapes (e.g. 16:9 news pictures) pass aspect, label and hint.
+export default function PhotoCropper({
+  onDone,
+  onCancel,
+  aspect = 5 / 6,
+  label = 'Choose a clear photo of your face',
+  hint = 'Drag the photo so your face sits in the middle of the frame.',
+  maxWidth = 800,
+}) {
   const [src, setSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -38,7 +46,7 @@ export default function PhotoCropper({ onDone, onCancel }) {
     if (!area) return;
     setBusy(true);
     try {
-      const blob = await cropToBlob(src, area);
+      const blob = await cropToBlob(src, area, maxWidth);
       onDone(blob);
       setSrc(null);
     } catch (err) {
@@ -51,19 +59,19 @@ export default function PhotoCropper({ onDone, onCancel }) {
   return (
     <div className="cropper">
       <label className="field">
-        Choose a clear photo of your face
+        {label}
         <input type="file" accept="image/*" onChange={handleFile} />
       </label>
       {error && <p className="alert alert-error" role="alert">{error}</p>}
 
       {src && (
         <>
-          <div className="crop-area">
+          <div className={aspect > 1 ? 'crop-area crop-area-wide' : 'crop-area'}>
             <Cropper
               image={src}
               crop={crop}
               zoom={zoom}
-              aspect={5 / 6}
+              aspect={aspect}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={(_, pixels) => setArea(pixels)}
@@ -74,7 +82,7 @@ export default function PhotoCropper({ onDone, onCancel }) {
             <input type="range" min="1" max="3" step="0.05" value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))} />
           </label>
-          <p className="muted small">Drag the photo so your face sits in the middle of the frame.</p>
+          <p className="muted small">{hint}</p>
         </>
       )}
 

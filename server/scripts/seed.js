@@ -12,6 +12,8 @@ import { User } from '../src/models/User.js';
 import { nextSequence } from '../src/models/Counter.js';
 import { Event } from '../src/models/Event.js';
 import { Fund, Transaction } from '../src/models/Fund.js';
+import { Post } from '../src/models/Post.js';
+import { History } from '../src/models/History.js';
 import { todayInColombo } from '../src/utils/money.js';
 import { formatMemberNo } from '../src/utils/memberNo.js';
 
@@ -224,6 +226,97 @@ async function seedDemo(branchesByCode) {
       { ...base, date: `${day(5)}-05`, type: 'out', amountCents: 500000, category: 'Running costs', description: 'Website domain (.lk) for the year', branch: null, paymentMethod: 'Bank transfer' },
     ]);
     console.log('Demo money records created. treasurer@demo.lk is the Kandy treasurer.');
+  }
+
+  // News posts (marked demo, so they can be removed before going live).
+  if (!(await Post.exists({ demo: true }))) {
+    const secretary = await User.findOne({ email: 'secretary@demo.lk' });
+    const coordinator = await User.findOne({ email: 'kandy.coordinator@demo.lk' });
+    const day = 24 * 60 * 60 * 1000;
+    const ago = (n) => new Date(Date.now() - n * day);
+    await Post.create([
+      {
+        title: 'Annual General Meeting notice (demo)',
+        category: 'Notice',
+        summary: 'Sample notice: the AGM for all three branches. Bring your QR card.',
+        body: 'This is a sample post so you can see how news looks.\n\nThe committee writes posts from the News page with "Write a post". A blank line starts a new paragraph, and links like https://example.com become clickable.',
+        branch: null,
+        status: 'published',
+        publishedAt: ago(2),
+        author: secretary?._id,
+        demo: true,
+      },
+      {
+        title: 'Kandy netball team needs players (demo)',
+        category: 'News',
+        summary: 'Sample branch post, written by the Kandy coordinator.',
+        body: 'Branch coordinators can post for their own branch. This one shows under Kandy and under All branches.',
+        branch: branchesByCode.KDY._id,
+        status: 'published',
+        publishedAt: ago(6),
+        author: coordinator?._id,
+        demo: true,
+      },
+      {
+        title: 'Batch 2010 reunion photos (demo)',
+        category: 'Reunion',
+        summary: 'Sample members-only post: visitors who are not logged in do not see it.',
+        body: 'Members-only posts are good for reunion photos and anything not meant for the public.',
+        branch: branchesByCode.BDW._id,
+        membersOnly: true,
+        status: 'published',
+        publishedAt: ago(12),
+        author: secretary?._id,
+        demo: true,
+      },
+      {
+        title: 'Scholarship fund appeal (demo draft)',
+        category: 'Project',
+        summary: 'A draft: only the committee sees it until it is published.',
+        body: 'Drafts let the committee prepare a post and check it before everyone sees it.',
+        branch: null,
+        status: 'draft',
+        author: secretary?._id,
+        demo: true,
+      },
+    ]);
+    console.log('Demo news posts created (one is a draft, one is members only).');
+  }
+
+  // Sample history page, only if nobody has written the real one yet.
+  if (!(await History.exists({}))) {
+    const sample = (text) => `${text} (sample)`;
+    await History.create({
+      key: 'main',
+      demo: true,
+      storyTitle: 'Sample story: replace with the real one',
+      story:
+        'This is sample text so you can see how the history page looks. The central Secretary or the main admin replaces it with "Edit this page".\n\nAdd two or three short paragraphs on how the school began and grew into three branches.',
+      timeline: [
+        { year: '[Year]', title: sample('The school is founded'), text: 'Who founded it, where, and with how many students.' },
+        { year: '[Year]', title: sample('The OGA is formed'), text: 'How and by whom the association was started.' },
+        { year: '[Year]', title: sample('A new branch opens'), text: 'Where and why the branch began.' },
+      ],
+      committeeTerm: '2025–2026 (sample)',
+      centralCommittee: [
+        { position: 'President', name: 'Sample Name', branch: branchesByCode.COL._id, batch: '1990' },
+        { position: 'Secretary', name: 'Sample Name', branch: branchesByCode.KDY._id, batch: '1998' },
+        { position: 'Treasurer', name: 'Sample Name', branch: branchesByCode.BDW._id, batch: '2001' },
+      ],
+      branchCommittees: [
+        { position: 'Coordinator', name: 'Sample Name', branch: branchesByCode.KDY._id, batch: '' },
+        { position: 'Coordinator', name: 'Sample Name', branch: branchesByCode.BDW._id, batch: '' },
+        { position: 'Coordinator', name: 'Sample Name', branch: branchesByCode.COL._id, batch: '' },
+      ],
+      presidents: [
+        { term: '[Years]', name: 'Sample Name', branch: branchesByCode.COL._id, batch: '' },
+        { term: '[Years]', name: 'Sample Name', branch: branchesByCode.KDY._id, batch: '' },
+      ],
+      honours: [
+        { name: 'Sample Name', branch: branchesByCode.KDY._id, batch: '2005', field: 'Medicine', year: '', achievement: 'One line on what she achieved.' },
+      ],
+    });
+    console.log('Sample history page created (clearly marked "sample"; replace it from the History page).');
   }
 }
 

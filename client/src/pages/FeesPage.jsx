@@ -196,7 +196,7 @@ export default function FeesPage() {
                       )}
                     </td>
                     <td className="strong">
-                      {m.fullName}
+                      <Link to={`/committee/members/${m._id}`} className="member-link">{m.fullName}</Link>
                       {m.memberNo && <div className="muted small">{m.memberNo}</div>}
                     </td>
                     <td>{m.branch?.name}</td>

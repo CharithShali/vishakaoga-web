@@ -7,6 +7,8 @@ import PendingRegistrations from '../components/PendingRegistrations.jsx';
 import { SCHOOL_ROLES } from '../options.js';
 
 const VIEW_ROLES = ['secretary', 'coordinator'];
+// Who can open a member's page (details and payment history)
+const DETAIL_ROLES = ['secretary', 'treasurer'];
 
 export default function CommitteePage() {
   const { user } = useAuth();
@@ -65,20 +67,6 @@ export default function CommitteePage() {
       .finally(() => setLoading(false));
   }, [branchFilter, statusView, query, roleFilter, canViewMembers, reloadKey]);
 
-  async function run(action, successMessage) {
-    setError('');
-    setNotice('');
-    try {
-      const res = await action();
-      setNotice(successMessage(res));
-      setReloadKey((k) => k + 1);
-      return true;
-    } catch (err) {
-      setError(err.message);
-      return false;
-    }
-  }
-
   async function saveRoles(memberId, roles) {
     setError('');
     try {
@@ -90,17 +78,7 @@ export default function CommitteePage() {
     }
   }
 
-  const removeMember = (m, reason) =>
-    run(() => api(`/users/${m._id}/remove`, { method: 'POST', body: { reason } }),
-      () => `${m.fullName}'s membership was removed. You can restore it under "Removed members".`);
-  const restoreMember = (m) =>
-    run(() => api(`/users/${m._id}/restore`, { method: 'POST' }),
-      () => `${m.fullName} is an active member again. Add committee roles again if she needs them.`);
-  const deleteMember = (m) =>
-    run(() => api(`/users/${m._id}`, { method: 'DELETE' }),
-      () => `${m.fullName} was deleted permanently, with her photo.`);
-
-  const columns = showingRemoved ? 6 : admin ? 7 : 6;
+  const columns = 6;
 
   return (
     <div className="container page">
@@ -180,9 +158,14 @@ export default function CommitteePage() {
             </span>
           </div>
 
-          {!admin && (
-            <p className="muted small">Only the main admin can change committee roles or remove members.</p>
-          )}
+          <p className="muted small">
+            {hasRole(user, DETAIL_ROLES)
+              ? 'Click a name to see her details and payment history.'
+              : ''}
+            {admin
+              ? ' Remove, restore or delete a membership from her page.'
+              : ' Only the main admin can change committee roles or remove members.'}
+          </p>
           {notice && <p className="alert alert-ok" role="status">{notice}</p>}
           {error && <p className="alert alert-error" role="alert">{error}</p>}
 
@@ -205,7 +188,6 @@ export default function CommitteePage() {
                       <th>Committee roles</th>
                     </>
                   )}
-                  {admin && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -222,7 +204,11 @@ export default function CommitteePage() {
                 {!loading && members.map((m) => (
                   <tr key={m._id}>
                     <td className="strong">
-                      {m.fullName}
+                      {hasRole(user, DETAIL_ROLES, m.branch?._id) ? (
+                        <Link to={`/committee/members/${m._id}`} className="member-link">{m.fullName}</Link>
+                      ) : (
+                        m.fullName
+                      )}
                       {m.memberNo && <div className="muted small">{m.memberNo}</div>}
                       {m.schoolRoles?.length > 0 && (
                         <div className="school-roles small">{m.schoolRoles.join(' · ')}</div>
@@ -254,17 +240,6 @@ export default function CommitteePage() {
                             onSave={(roles) => saveRoles(m._id, roles)} />
                         </td>
                       </>
-                    )}
-                    {admin && (
-                      <td>
-                        {showingRemoved ? (
-                          <RemovedActions member={m} onRestore={restoreMember} onDelete={deleteMember} />
-                        ) : m._id === user._id ? (
-                          <span className="muted small">You</span>
-                        ) : (
-                          <RemoveAction member={m} onRemove={removeMember} />
-                        )}
-                      </td>
                     )}
                   </tr>
                 ))}
@@ -323,83 +298,6 @@ function RoleCell({ member, branches, editable, onSave }) {
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-// "Remove membership…" → asks for a reason, then removes.
-function RemoveAction({ member, onRemove }) {
-  const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  if (!open) {
-    return (
-      <button type="button" className="btn btn-small" onClick={() => setOpen(true)}>
-        Remove membership…
-      </button>
-    );
-  }
-
-  async function confirm() {
-    setBusy(true);
-    const ok = await onRemove(member, reason);
-    if (!ok) setBusy(false);
-  }
-
-  return (
-    <div className="inline-confirm">
-      <label className="field small-field">
-        Reason
-        <input type="text" value={reason} onChange={(e) => setReason(e.target.value)}
-          placeholder="e.g. Asked to leave the association" />
-      </label>
-      <p className="muted small">She won't be able to log in, and her committee roles are cleared.</p>
-      <div className="row-actions">
-        <button type="button" className="btn btn-small btn-danger" onClick={confirm}
-          disabled={busy || reason.trim().length < 3}>Remove</button>
-        <button type="button" className="btn btn-small" onClick={() => setOpen(false)} disabled={busy}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// For removed members: Restore, or Delete permanently (asks twice).
-function RemovedActions({ member, onRestore, onDelete }) {
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  async function act(fn) {
-    setBusy(true);
-    const ok = await fn(member);
-    if (!ok) setBusy(false);
-  }
-
-  if (confirmDelete) {
-    return (
-      <div className="inline-confirm">
-        <p className="small">
-          Delete {member.fullName} and her photo for good? This can't be undone.
-        </p>
-        <div className="row-actions">
-          <button type="button" className="btn btn-small btn-danger" onClick={() => act(onDelete)}
-            disabled={busy}>Yes, delete</button>
-          <button type="button" className="btn btn-small" onClick={() => setConfirmDelete(false)}
-            disabled={busy}>Cancel</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="row-actions">
-      <button type="button" className="btn btn-small" onClick={() => act(onRestore)} disabled={busy}>
-        Restore
-      </button>
-      <button type="button" className="btn btn-small btn-danger" onClick={() => setConfirmDelete(true)}
-        disabled={busy}>Delete permanently…</button>
     </div>
   );
 }

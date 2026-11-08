@@ -5,10 +5,13 @@ import { User } from '../models/User.js';
 import { Branch } from '../models/Branch.js';
 import { requireRole } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { ROLES } from '../utils/permissions.js';
+import { ROLES, hasRole } from '../utils/permissions.js';
+import { Transaction } from '../models/Fund.js';
+import { EventCheckin } from '../models/Event.js';
+import { Notification } from '../models/Notification.js';
 import { scopedBranchFilter } from '../utils/branchFilter.js';
 import { buildMemberSearch } from '../utils/memberSearch.js';
-import { deleteCardPhoto } from '../services/photos.js';
+import { deleteCardPhoto, cardPhotoUrl } from '../services/photos.js';
 
 export const usersRouter = Router();
 
@@ -165,4 +168,54 @@ usersRouter.delete('/:id', requireRole('admin'), async (req, res) => {
   await deleteCardPhoto(user.photoId);
   await user.deleteOne();
   res.json({ ok: true, name: user.fullName });
+});
+
+// ---------- One member's page (admin, Secretary, Treasurer) ----------
+
+const DETAIL_ROLES = ['secretary', 'treasurer'];
+
+// GET /api/users/:id/details  everything about her, her payments and events.
+// A branch secretary or treasurer can open members of her own branch only.
+usersRouter.get('/:id/details', requireRole(...DETAIL_ROLES), async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ error: 'Member not found.' });
+  const member = await User.findById(req.params.id)
+    .populate('branch', 'name code')
+    .populate('otherBranch.branch', 'name')
+    .populate('roles.branch', 'name')
+    .populate('review.by', 'fullName')
+    .populate('removal.by', 'fullName');
+  if (!member) return res.status(404).json({ error: 'Member not found.' });
+  if (!hasRole(req.user, DETAIL_ROLES, member.branch?._id)) {
+    return res.status(403).json({ error: 'You can only open members of your own branch.' });
+  }
+
+  const [payments, checkins, reminders] = await Promise.all([
+    Transaction.find({ member: member._id })
+      .sort({ date: -1, createdAt: -1 })
+      .limit(200)
+      .populate('fund', 'name')
+      .populate('branch', 'name')
+      .populate('recordedBy', 'fullName')
+      .populate('voided.by', 'fullName'),
+    EventCheckin.find({ user: member._id })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .populate({ path: 'event', select: 'title startsAt branch', populate: { path: 'branch', select: 'name' } }),
+    Notification.find({ user: member._id, kind: 'fee-reminder' }).sort({ createdAt: -1 }).limit(20).select('year createdAt readAt'),
+  ]);
+
+  const counted = payments.filter((t) => !t.voided?.at);
+  const paidYears = [...new Set(counted.filter((t) => t.subscriptionYear).map((t) => t.subscriptionYear))].sort((a, b) => b - a);
+
+  res.json({
+    member: { ...member.toJSON(), photoUrl: cardPhotoUrl(member.photoId) },
+    paidYears,
+    totalPaidCents: counted.filter((t) => t.type === 'in').reduce((sum, t) => sum + t.amountCents, 0),
+    payments,
+    events: checkins
+      .filter((c) => c.event)
+      .map((c) => ({ _id: c.event._id, title: c.event.title, startsAt: c.event.startsAt, branch: c.event.branch?.name || 'All branches', checkedInAt: c.createdAt })),
+    reminders,
+    canManage: hasRole(req.user, ['admin']), // remove / restore / delete
+  });
 });

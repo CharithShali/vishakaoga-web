@@ -98,6 +98,7 @@ server/
 | GET | `/api/auth/me` | Anyone (returns `user: null` when logged out) |
 | POST | `/api/auth/change-password` | Logged-in members |
 | GET | `/api/users?branch=&status=&q=&role=` (q: name, member no., email or batch year; role: `committee:any`, `committee:<role>`, `school:<role>`) | Secretary / coordinator (own branch only) / admin |
+| GET | `/api/users/:id/details` (details, payment history, events attended, fee reminders) | Secretary / treasurer (own branch only) / admin |
 | PUT | `/api/users/:id/roles` | Main admin |
 | POST | `/api/users/:id/remove` `{ reason }` · `/api/users/:id/restore` | Main admin |
 | DELETE | `/api/users/:id` (only removed or rejected members; photo deleted too) | Main admin |
@@ -145,6 +146,10 @@ server/
   **WhatsApp** button that opens WhatsApp with the reminder typed in (Sri Lankan numbers like
   `0771234567` become `94771234567`). Email/SMS reminders would need a sending service and can be
   added later.
+- **Member page** (`/committee/members/:id`): click a name in the Committee list or on the
+  Membership fees page. Shows her card, contact, school and work details, payment history (voided
+  entries crossed out), events she attended and reminders sent. The main admin removes, restores
+  or permanently deletes a membership from here (red button, a reason is required).
 
 | Method | Path | Who |
 | --- | --- | --- |

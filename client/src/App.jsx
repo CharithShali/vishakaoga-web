@@ -14,6 +14,7 @@ import FundsPage from './pages/FundsPage.jsx';
 import RecordMoneyPage from './pages/RecordMoneyPage.jsx';
 import FeesPage from './pages/FeesPage.jsx';
 import NotificationsPage from './pages/NotificationsPage.jsx';
+import MemberDetailPage from './pages/MemberDetailPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import { ROLES, MANAGE_EVENT_ROLES, CHECKIN_ROLES } from './auth/permissions.js';
 
@@ -95,6 +96,14 @@ export default function App() {
           element={
             <RequireRole roles={['secretary', 'treasurer']}>
               <FeesPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="committee/members/:id"
+          element={
+            <RequireRole roles={['secretary', 'treasurer']}>
+              <MemberDetailPage />
             </RequireRole>
           }
         />

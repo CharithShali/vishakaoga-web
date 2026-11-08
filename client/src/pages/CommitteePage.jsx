@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { ROLES, ROLE_LABELS, hasRole, isAdmin, roleText } from '../auth/permissions.js';
@@ -103,7 +104,12 @@ export default function CommitteePage() {
 
   return (
     <div className="container page">
-      <h1>Committee area</h1>
+      <div className="page-head">
+        <h1>Committee area</h1>
+        {hasRole(user, ['secretary', 'treasurer']) && (
+          <Link to="/committee/fees" className="btn btn-gold">Membership fees</Link>
+        )}
+      </div>
       <div className="chips">
         {user.roles.map((r, i) => (
           <span key={i} className="chip chip-navy">{roleText(r)}</span>

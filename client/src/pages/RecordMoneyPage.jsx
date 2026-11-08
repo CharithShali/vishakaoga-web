@@ -14,16 +14,18 @@ export default function RecordMoneyPage() {
     type: params.get('type') === 'out' ? 'out' : 'in',
     date: todayInColombo(),
     amount: '',
-    category: '',
+    category: params.get('category') || '',
     description: '',
     fund: '',
     branch: '',
     paymentMethod: 'Cash',
     reference: '',
-    member: '',
-    subscriptionYear: '',
+    // "Record fee" on the Membership fees page fills these in
+    member: params.get('member') || '',
+    subscriptionYear: params.get('year') || '',
   });
-  const [memberLabel, setMemberLabel] = useState('');
+  const [memberLabel, setMemberLabel] = useState(params.get('memberName') || '');
+  const prefilledBranch = params.get('branch') || '';
   const [loaded, setLoaded] = useState(!editing);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -37,7 +39,10 @@ export default function RecordMoneyPage() {
           ...f,
           fund: f.fund || m.funds[0]?._id || '',
           // Default branch: her own branch if she is a branch treasurer, otherwise central.
-          branch: f.branch || (m.canRecordCentral ? 'central' : m.recordBranches[0] || ''),
+          branch:
+            f.branch ||
+            (m.recordBranches.includes(prefilledBranch) ? prefilledBranch : '') ||
+            (m.canRecordCentral ? 'central' : m.recordBranches[0] || ''),
         }));
       })
       .catch((e) => setError(e.message));

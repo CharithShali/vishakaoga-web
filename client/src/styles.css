@@ -479,3 +479,15 @@ th.num { text-align: right; }
   border: 1px solid #cfc5ae; border-radius: 6px; background: var(--white); color: var(--ink);
 }
 .row-actions.nowrap { flex-wrap: nowrap; gap: 6px; }
+
+/* ---- Membership fees and notifications ---- */
+.remind-bar { margin: 0 0 14px; }
+.btn-whatsapp { background: #1f7a45; border-color: #1f7a45; color: var(--white); }
+.btn-whatsapp:hover { color: var(--white); filter: brightness(1.1); }
+.nav-bell { padding: 10px 10px !important; }
+.notification-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.notification { display: flex; flex-direction: column; gap: 10px; }
+.notification.unread { border-color: var(--gold); box-shadow: inset 4px 0 0 var(--gold); }
+.notification-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.notification-head h2 { margin: 0; font-size: 22px; }
+.notification p { margin: 0; }

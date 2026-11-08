@@ -135,6 +135,23 @@ server/
 | GET | `/api/funds/member-search?q=` | Treasurers |
 | POST · PUT | `/api/funds` · `/api/funds/:id` | Central treasurer / admin |
 
+## Membership fees and reminders
+
+- **Committee → Membership fees** (admin, Secretary, Treasurer; branch roles see their branch):
+  for a year, every active member as **Paid** (amount, date) or **Not paid**, with counts, search,
+  and **Record fee** for treasurers (opens the money form already filled in).
+- **Reminders:** *Remind all unpaid* or *Remind selected* puts a notification under the **bell**
+  in the member's menu (members who have paid are always skipped). Each unpaid member also has a
+  **WhatsApp** button that opens WhatsApp with the reminder typed in (Sri Lankan numbers like
+  `0771234567` become `94771234567`). Email/SMS reminders would need a sending service and can be
+  added later.
+
+| Method | Path | Who |
+| --- | --- | --- |
+| GET | `/api/fees/status?year=&branch=&q=&show=all\|paid\|unpaid` | Secretary / treasurer (own branch) / admin |
+| POST | `/api/fees/remind` `{ year, memberIds? \| allUnpaid, branch? }` | Same |
+| GET | `/api/notifications` · `/api/notifications/unread-count` · POST `/api/notifications/read-all` | Logged-in members (their own) |
+
 ## Events and the gate scanner
 
 - Times are typed and shown in **Sri Lanka time** (UTC+05:30), wherever the person is.

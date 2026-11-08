@@ -12,6 +12,8 @@ import EventFormPage from './pages/EventFormPage.jsx';
 import ScanPage from './pages/ScanPage.jsx';
 import FundsPage from './pages/FundsPage.jsx';
 import RecordMoneyPage from './pages/RecordMoneyPage.jsx';
+import FeesPage from './pages/FeesPage.jsx';
+import NotificationsPage from './pages/NotificationsPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import { ROLES, MANAGE_EVENT_ROLES, CHECKIN_ROLES } from './auth/permissions.js';
 
@@ -85,6 +87,22 @@ export default function App() {
           element={
             <RequireRole roles={['treasurer']}>
               <RecordMoneyPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="committee/fees"
+          element={
+            <RequireRole roles={['secretary', 'treasurer']}>
+              <FeesPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="notifications"
+          element={
+            <RequireRole>
+              <NotificationsPage />
             </RequireRole>
           }
         />

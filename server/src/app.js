@@ -13,6 +13,8 @@ import { registrationsRouter } from './routes/registrations.js';
 import { membersRouter } from './routes/members.js';
 import { eventsRouter } from './routes/events.js';
 import { fundsRouter } from './routes/funds.js';
+import { feesRouter } from './routes/fees.js';
+import { notificationsRouter } from './routes/notifications.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(here, '../../client/dist');
@@ -42,6 +44,8 @@ export function createApp() {
   app.use('/api/members', membersRouter);
   app.use('/api/events', eventsRouter);
   app.use('/api/funds', fundsRouter);
+  app.use('/api/fees', feesRouter);
+  app.use('/api/notifications', notificationsRouter);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found.' }));
 
   // ---- Website (the built React app) ----

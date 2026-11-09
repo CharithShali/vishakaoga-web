@@ -31,7 +31,7 @@ export default function MemberCard({
     <div className="member-card">
       <div className="mc-top">
         <Crest />
-        <span>Visakha OGA</span>
+        <span>Vishaka OGA</span>
       </div>
 
       <div className="mc-photo">

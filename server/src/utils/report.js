@@ -54,7 +54,7 @@ export async function renderReport(report, format) {
       timeStyle: 'short',
       timeZone: 'Asia/Colombo',
     }).format(new Date());
-    const buffer = await buildTablePdf({ ...forPdf(report), footer: `Visakha OGA · made ${generated}` });
+    const buffer = await buildTablePdf({ ...forPdf(report), footer: `Vishaka OGA · made ${generated}` });
     return { buffer, contentType: 'application/pdf', filename: `${base}.pdf` };
   }
   const buffer = buildXlsx([{ ...report, name: report.sheetName || report.title }]);

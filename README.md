@@ -1,7 +1,7 @@
 # vishakaoga-web
 
-Website for the **Visakha Vidyalaya Old Girls' Association (OGA)**, with three branches:
-Kandy (KDY), Bandarawela (BDW) and Colombo (COL).
+Website for the **Vishaka Vidyalaya Old Girls' Association (OGA)**, with three branches:
+Bandarawela (BDW), Colombo (COL) and Kandy (KDY).
 
 **Stack:** React (Vite) · Express · MongoDB Atlas · Cloudinary (photos, from step 2).
 One Node app serves both the API and the website, so it runs as a single Render service.

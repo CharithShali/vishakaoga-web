@@ -76,9 +76,9 @@ export async function drawCardPng(member, photoSrc, qrDataUrl) {
   ctx.strokeStyle = GOLD;
   ctx.stroke();
 
-  // Header: crest + "Visakha OGA", centred
+  // Header: crest + "Vishaka OGA", centred
   ctx.font = `700 40px ${SERIF}`;
-  const brand = 'Visakha OGA';
+  const brand = 'Vishaka OGA';
   const brandW = ctx.measureText(brand).width;
   const crestSize = 44;
   const startX = (W - (crestSize + 14 + brandW)) / 2;

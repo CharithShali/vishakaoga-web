@@ -30,9 +30,9 @@ export default function HomePage() {
     <>
       <section className="hero">
         <div className="container hero-inner">
-          <h1>Welcome to the Visakha OGA</h1>
+          <h1>Welcome to the Vishaka OGA</h1>
           <p className="hero-lead">
-            One school, three cities. Whether you studied in Kandy, Bandarawela or Colombo,
+            One school, three cities. Whether you studied in Bandarawela, Colombo or Kandy,
             register once and stay close to your batch and your branch.
           </p>
           <div className="hero-actions">

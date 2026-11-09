@@ -3,7 +3,7 @@ export function feeReminderText(firstName, year, branchName) {
   const who = firstName ? `Dear ${firstName}, ` : '';
   const where = branchName ? `your ${branchName} branch treasurer` : 'your branch treasurer';
   return (
-    `${who}we haven't recorded your Visakha OGA membership fee for ${year} yet. ` +
+    `${who}we haven't recorded your Vishaka OGA membership fee for ${year} yet. ` +
     `Please pay ${where} by cash or bank transfer. ` +
     `If you have already paid, please let the treasurer know so it can be recorded. Thank you!`
   );

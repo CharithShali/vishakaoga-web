@@ -125,7 +125,7 @@ function fitColumns(cols, rows, font, bold, usable) {
 export async function buildTablePdf(report) {
   const doc = await PDFDocument.create();
   doc.setTitle(pdfSafe(report.title));
-  doc.setCreator('Visakha OGA website');
+  doc.setCreator('Vishaka OGA website');
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
 
@@ -241,7 +241,7 @@ export async function buildTablePdf(report) {
   pages.forEach((p, i) => {
     page = p;
     const label = `Page ${i + 1} of ${pages.length}`;
-    textAt(report.footer || 'Visakha OGA', MARGIN, MARGIN, font, 8, MUTED);
+    textAt(report.footer || 'Vishaka OGA', MARGIN, MARGIN, font, 8, MUTED);
     textAt(label, MARGIN, MARGIN, font, 8, MUTED, 'right', usable);
   });
 

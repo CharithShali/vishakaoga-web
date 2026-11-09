@@ -87,7 +87,7 @@ export default function HistoryEditPage() {
           <h2>Our story</h2>
           <label className="field">
             Heading
-            <input type="text" value={form.storyTitle} onChange={text('storyTitle')} placeholder="e.g. 100+ years of Visakha" />
+            <input type="text" value={form.storyTitle} onChange={text('storyTitle')} placeholder="e.g. 100+ years of Vishaka" />
           </label>
           <label className="field">
             <span className="field-label">The story <span className="muted small">(two or three short paragraphs)</span></span>

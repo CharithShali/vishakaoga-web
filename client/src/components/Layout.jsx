@@ -32,8 +32,8 @@ export default function Layout() {
           <Link to="/" className="brand">
             <span className="brand-crest"><Crest /></span>
             <span className="brand-text">
-              <span className="brand-name">Visakha OGA</span>
-              <span className="brand-sub">Kandy · Bandarawela · Colombo</span>
+              <span className="brand-name">Vishaka OGA</span>
+              <span className="brand-sub">Bandarawela · Colombo · Kandy</span>
             </span>
           </Link>
           <nav className="main-nav" aria-label="Main">
@@ -85,7 +85,7 @@ export default function Layout() {
 
       <footer className="site-footer">
         <div className="container footer-row">
-          <span>Visakha Vidyalaya OGA · Kandy · Bandarawela · Colombo</span>
+          <span>Vishaka Vidyalaya OGA · Bandarawela · Colombo · Kandy</span>
           <span>
             <Link to="/batches">Batch wall</Link> · <Link to="/history">Our story</Link> · Questions? Contact your branch coordinator.
           </span>

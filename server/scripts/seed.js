@@ -17,17 +17,23 @@ import { History } from '../src/models/History.js';
 import { todayInColombo } from '../src/utils/money.js';
 import { formatMemberNo } from '../src/utils/memberNo.js';
 
+// The order is how branches are listed everywhere (tabs, menus, lists, downloads).
 const BRANCHES = [
-  { name: 'Kandy', code: 'KDY', order: 1 },
-  { name: 'Bandarawela', code: 'BDW', order: 2 },
-  { name: 'Colombo', code: 'COL', order: 3 },
+  { name: 'Bandarawela', code: 'BDW', order: 1 },
+  { name: 'Colombo', code: 'COL', order: 2 },
+  { name: 'Kandy', code: 'KDY', order: 3 },
 ];
 
 const withDemo = process.argv.includes('--demo');
 
 async function seedBranches() {
   for (const b of BRANCHES) {
-    await Branch.updateOne({ code: b.code }, { $setOnInsert: b }, { upsert: true });
+    // New branches are created; existing ones only get their list order updated.
+    await Branch.updateOne(
+      { code: b.code },
+      { $setOnInsert: { name: b.name, code: b.code }, $set: { order: b.order } },
+      { upsert: true }
+    );
   }
   const all = await Branch.find().sort({ order: 1 });
   console.log(`Branches: ${all.map((b) => `${b.name} (${b.code})`).join(', ')}`);
@@ -56,7 +62,7 @@ async function seedAdmin(branchesByCode) {
 
   const code = (process.env.ADMIN_BRANCH || 'COL').toUpperCase();
   const branch = branchesByCode[code];
-  if (!branch) throw new Error(`ADMIN_BRANCH "${code}" is not one of KDY, BDW, COL.`);
+  if (!branch) throw new Error(`ADMIN_BRANCH "${code}" is not one of BDW, COL, KDY.`);
 
   const existing = await User.findOne({ email });
   if (existing) {

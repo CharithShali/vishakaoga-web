@@ -41,7 +41,7 @@ export default function HistoryPage() {
           <p className="eyebrow eyebrow-light">Our story</p>
           <h1>{h.storyTitle || 'One school, three cities'}</h1>
           {h.story ? <RichText text={h.story} className="rich-text hero-lead" /> : (
-            <p className="hero-lead">The story of Visakha and the friendships that never ended.</p>
+            <p className="hero-lead">The story of Vishaka and the friendships that never ended.</p>
           )}
           {h.motto && (
             <figure className="motto">

@@ -57,7 +57,7 @@ a:hover { color: var(--gold-text); }
 }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ivory); }
 .brand:hover { color: var(--ivory); }
-.brand-flag { display: block; width: auto; height: 40px; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); }
+.brand-badge { display: block; width: 46px; height: 46px; flex: none; border-radius: 50%; box-shadow: 0 0 0 2px var(--gold); }
 .brand-text { display: flex; flex-direction: column; }
 .brand-name { font-family: var(--serif); font-size: 21px; font-weight: 700; }
 .brand-sub { font-size: 13px; color: var(--gold-soft); }
@@ -711,3 +711,7 @@ section > .row-card + .row-card { margin-top: 14px; }
 }
 .field-label .muted { font-weight: 400; }
 .picker-reminder { border: 1px solid var(--gold); }
+
+/* School badge on the membership card */
+.mc-badge { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--gold); flex: none; }
+@media print { .mc-badge { width: 5.5mm; height: 5.5mm; box-shadow: 0 0 0 0.3mm var(--gold); } }

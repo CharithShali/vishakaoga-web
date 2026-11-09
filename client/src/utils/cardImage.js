@@ -42,16 +42,19 @@ function fitText(ctx, text, y, { size, min = 18, weight = 400, family = SANS, co
   ctx.fillText(text, W / 2, y);
 }
 
-function drawCrest(ctx, cx, cy, scale, color) {
-  ctx.save();
-  ctx.translate(cx - 12 * scale, cy - 12 * scale);
-  ctx.scale(scale, scale);
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.6;
-  ctx.lineJoin = 'round';
-  ctx.stroke(new Path2D('M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z'));
-  ctx.stroke(new Path2D('M8 11l3 3 5-6'));
-  ctx.restore();
+// The school badge, round, with a thin gold ring (same as on the card on screen).
+async function drawBadge(ctx, cx, cy, size) {
+  try {
+    const badge = await loadImage('/badge.png');
+    ctx.drawImage(badge, cx - size / 2, cy - size / 2, size, size);
+  } catch {
+    return; // the card is still fine without it
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = GOLD;
+  ctx.stroke();
 }
 
 /**
@@ -76,16 +79,17 @@ export async function drawCardPng(member, photoSrc, qrDataUrl) {
   ctx.strokeStyle = GOLD;
   ctx.stroke();
 
-  // Header: crest + "Vishaka OGA", centred
+  // Header: badge + "Vishaka OGA", centred
   ctx.font = `700 40px ${SERIF}`;
   const brand = 'Vishaka OGA';
   const brandW = ctx.measureText(brand).width;
-  const crestSize = 44;
-  const startX = (W - (crestSize + 14 + brandW)) / 2;
-  drawCrest(ctx, startX + crestSize / 2, 82, crestSize / 24, GOLD);
+  const badgeSize = 64;
+  const startX = (W - (badgeSize + 16 + brandW)) / 2;
+  await drawBadge(ctx, startX + badgeSize / 2, 82, badgeSize);
+  ctx.font = `700 40px ${SERIF}`;
   ctx.fillStyle = GOLD;
   ctx.textAlign = 'left';
-  ctx.fillText(brand, startX + crestSize + 14, 96);
+  ctx.fillText(brand, startX + badgeSize + 16, 96);
   ctx.textAlign = 'center';
 
   ctx.strokeStyle = '#3A5078';

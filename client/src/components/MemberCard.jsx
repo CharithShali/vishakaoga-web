@@ -2,16 +2,6 @@
 // the member's preview while registering, the committee's check before approving,
 // the final card, printing, and (drawn the same way) the "Save card" image.
 
-function Crest() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" />
-      <path d="M8 11l3 3 5-6" />
-    </svg>
-  );
-}
-
 export default function MemberCard({
   name,
   branchName,
@@ -30,7 +20,7 @@ export default function MemberCard({
   return (
     <div className="member-card">
       <div className="mc-top">
-        <Crest />
+        <img src="/badge.png" alt="" className="mc-badge" />
         <span>Vishaka OGA</span>
       </div>
 

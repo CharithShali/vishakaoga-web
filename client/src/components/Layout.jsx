@@ -20,8 +20,8 @@ export default function Layout() {
       <header className="site-header">
         <div className="container header-row">
           <Link to="/" className="brand">
-            {/* The school flag (client/public/flag.png) */}
-            <img src="/flag.png" alt="" className="brand-flag" width="50" height="40" />
+            {/* The school badge (client/public/badge.png) */}
+            <img src="/badge.png" alt="" className="brand-badge" width="46" height="46" />
             <span className="brand-text">
               <span className="brand-name">Vishaka OGA</span>
               <span className="brand-sub">Bandarawela · Colombo · Kandy</span>

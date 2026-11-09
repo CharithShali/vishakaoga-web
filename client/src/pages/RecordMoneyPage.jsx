@@ -3,6 +3,29 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api.js';
 import { todayInColombo } from '../utils/money.js';
 
+// Ready-made descriptions for each category. "Other" lets her type her own.
+// (Ask to change this list any time; old records keep whatever they say.)
+const DESCRIPTIONS = {
+  'Membership fee': ['Annual membership fee', 'Life membership fee'],
+  Donation: ['Donation from a member', 'Donation from a batch', 'Donation from a well-wisher'],
+  'Event income': ['Ticket sales', 'Sponsorship', 'Sales at the event'],
+  'Other income': ['Bank interest'],
+  'Event costs': ['Venue', 'Food and refreshments', 'Decorations and printing', 'Transport'],
+  Scholarship: ['Scholarship payment'],
+  'School project': ['Materials', 'Labour and services'],
+  'Running costs': ['Website and domain', 'Printing and stationery', 'Bank charges', 'Phone and postage'],
+  'Other expense': [],
+};
+const OTHER = '__other__';
+
+// Which dropdown choice fits a description: a ready-made one, or "Other".
+function choiceFor(category, description) {
+  const list = DESCRIPTIONS[category] || [];
+  if (!category) return '';
+  if (!description) return list[0] || OTHER;
+  return list.includes(description) ? description : OTHER;
+}
+
 // Record money in or out (/funds/record?type=in) or correct a record (/funds/record/:id).
 export default function RecordMoneyPage() {
   const { id } = useParams();
@@ -24,6 +47,8 @@ export default function RecordMoneyPage() {
     member: params.get('member') || '',
     subscriptionYear: params.get('year') || '',
   });
+  // The description dropdown; when it is OTHER, form.description is what she typed.
+  const [descChoice, setDescChoice] = useState(() => choiceFor(params.get('category') || '', ''));
   const [memberLabel, setMemberLabel] = useState(params.get('memberName') || '');
   const prefilledBranch = params.get('branch') || '';
   const [loaded, setLoaded] = useState(!editing);
@@ -65,6 +90,9 @@ export default function RecordMoneyPage() {
           member: t.member?._id || '',
           subscriptionYear: t.subscriptionYear || '',
         });
+        const choice = choiceFor(t.category, t.description);
+        setDescChoice(choice);
+        if (choice !== OTHER) setForm((f) => ({ ...f, description: '' }));
         if (t.member) setMemberLabel(`${t.member.fullName} (${t.member.memberNo || 'no number'})`);
         setLoaded(true);
       })
@@ -76,16 +104,27 @@ export default function RecordMoneyPage() {
   // Changing in/out changes the category list.
   function setType(type) {
     setForm((f) => ({ ...f, type, category: '' }));
+    setDescChoice('');
+  }
+
+  // A new category brings its own descriptions; start on the first one.
+  function setCategory(e) {
+    const category = e.target.value;
+    setForm((f) => ({ ...f, category }));
+    setDescChoice(choiceFor(category, ''));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    const description = descChoice === OTHER ? form.description.trim() : descChoice;
+    if (form.category && !descChoice) return setError('Choose a description.');
+    if (form.category && !description) return setError('Write a description for "Other".');
     setBusy(true);
     try {
       await api(editing ? `/funds/transactions/${id}` : '/funds/transactions', {
         method: editing ? 'PUT' : 'POST',
-        body: form,
+        body: { ...form, description },
       });
       navigate('/funds');
     } catch (err) {
@@ -125,19 +164,29 @@ export default function RecordMoneyPage() {
           </label>
           <label className="field">
             Category *
-            <select value={form.category} onChange={field('category')} required>
+            <select value={form.category} onChange={setCategory} required>
               <option value="">Choose…</option>
               {meta.categories[form.type].map((c) => <option key={c}>{c}</option>)}
             </select>
           </label>
+          <label className="field">
+            Description *
+            <select value={descChoice} onChange={(e) => setDescChoice(e.target.value)} disabled={!form.category} required>
+              {!form.category && <option value="">Choose a category first</option>}
+              {(DESCRIPTIONS[form.category] || []).map((d) => <option key={d}>{d}</option>)}
+              {form.category && <option value={OTHER}>Other (write a description)</option>}
+            </select>
+          </label>
         </div>
 
-        <label className="field">
-          Description *
-          <input type="text" value={form.description} onChange={field('description')}
-            placeholder={form.type === 'in' ? 'e.g. Membership fee, or Donation from Batch 1998' : 'e.g. Venue and food for the get-together'}
-            required />
-        </label>
+        {descChoice === OTHER && (
+          <label className="field">
+            Write the description *
+            <input type="text" value={form.description} onChange={field('description')} maxLength={200} autoFocus={!editing}
+              placeholder={form.type === 'in' ? 'e.g. Donation from Batch 1998 for the library' : 'e.g. Sound system for the get-together'}
+              required />
+          </label>
+        )}
 
         <div className="grid-fields">
           <label className="field">

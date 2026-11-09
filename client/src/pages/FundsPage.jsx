@@ -227,9 +227,13 @@ function Records({ meta, branch, year, reloadKey, onChanged }) {
                   <td>
                     <span className="strong">{t.description}</span>
                     <div className="muted small">
-                      {t.category}
-                      {t.member && ` · ${t.member.fullName}${t.subscriptionYear ? ` (fee for ${t.subscriptionYear})` : ''}`}
-                      {t.reference && ` · Ref ${t.reference}`}
+                      {[
+                        t.category !== t.description && t.category, // not twice when they are the same
+                        t.member && `${t.member.fullName}${t.subscriptionYear ? ` (fee for ${t.subscriptionYear})` : ''}`,
+                        t.reference && `Ref ${t.reference}`,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
                     </div>
                     {voided && (
                       <div className="small void-note">

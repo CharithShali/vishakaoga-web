@@ -165,7 +165,14 @@ export default function MemberDetailPage() {
                     <td>
                       <span className="strong">{t.description}</span>
                       <div className="muted small">
-                        {t.category}{t.subscriptionYear ? ` · fee for ${t.subscriptionYear}` : ''}{t.reference ? ` · Ref ${t.reference}` : ''} · {t.paymentMethod}
+                        {[
+                          t.category !== t.description && t.category,
+                          t.subscriptionYear && `fee for ${t.subscriptionYear}`,
+                          t.reference && `Ref ${t.reference}`,
+                          t.paymentMethod,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
                       </div>
                       {voided && <div className="small void-note">Voided: {t.voided.reason}</div>}
                     </td>

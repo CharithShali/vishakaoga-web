@@ -9,6 +9,7 @@
     "start": "node src/index.js",
     "seed": "node scripts/seed.js",
     "seed:demo": "node scripts/seed.js --demo",
+    "branch-code": "node scripts/branch-code.js",
     "test": "node --test"
   },
   "dependencies": {

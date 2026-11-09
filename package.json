@@ -14,6 +14,7 @@
     "start": "npm start -w server",
     "seed": "npm run seed -w server",
     "seed:demo": "npm run seed:demo -w server",
+    "branch-code": "npm run branch-code -w server --",
     "test": "npm test -w server"
   },
   "devDependencies": {

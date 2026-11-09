@@ -18,10 +18,13 @@ import { todayInColombo } from '../src/utils/money.js';
 import { formatMemberNo } from '../src/utils/memberNo.js';
 
 // The order is how branches are listed everywhere (tabs, menus, lists, downloads).
+// `key` is only used inside this script. `code` is used when a branch is first
+// created; after that the real code lives in the database and can be changed with
+// `npm run branch-code` (branches are matched here by name, so that is safe).
 const BRANCHES = [
-  { name: 'Bandarawela', code: 'BDW', order: 1 },
-  { name: 'Colombo', code: 'COL', order: 2 },
-  { name: 'Kandy', code: 'KDY', order: 3 },
+  { key: 'BDW', name: 'Bandarawela', code: 'BDW', order: 1 },
+  { key: 'COL', name: 'Colombo', code: 'COL', order: 2 },
+  { key: 'KDY', name: 'Kandy', code: 'KDY', order: 3 },
 ];
 
 const withDemo = process.argv.includes('--demo');
@@ -30,14 +33,15 @@ async function seedBranches() {
   for (const b of BRANCHES) {
     // New branches are created; existing ones only get their list order updated.
     await Branch.updateOne(
-      { code: b.code },
+      { name: b.name },
       { $setOnInsert: { name: b.name, code: b.code }, $set: { order: b.order } },
       { upsert: true }
     );
   }
   const all = await Branch.find().sort({ order: 1 });
   console.log(`Branches: ${all.map((b) => `${b.name} (${b.code})`).join(', ')}`);
-  return Object.fromEntries(all.map((b) => [b.code, b]));
+  // Looked up by this script's key (BDW / COL / KDY), whatever the real code is now.
+  return Object.fromEntries(BRANCHES.map((b) => [b.key, all.find((x) => x.name === b.name)]));
 }
 
 // The three starting funds (only when there are none yet).
@@ -60,9 +64,12 @@ async function seedAdmin(branchesByCode) {
   }
   if (password.length < 8) throw new Error('ADMIN_PASSWORD must be at least 8 characters.');
 
-  const code = (process.env.ADMIN_BRANCH || 'COL').toUpperCase();
-  const branch = branchesByCode[code];
-  if (!branch) throw new Error(`ADMIN_BRANCH "${code}" is not one of BDW, COL, KDY.`);
+  // ADMIN_BRANCH: a branch code (current or original) or name, e.g. COL or Colombo
+  const wanted = (process.env.ADMIN_BRANCH || 'COL').trim().toUpperCase();
+  const branch =
+    branchesByCode[wanted] ||
+    Object.values(branchesByCode).find((b) => b.code === wanted || b.name.toUpperCase() === wanted);
+  if (!branch) throw new Error(`ADMIN_BRANCH "${wanted}" is not a branch code or name.`);
 
   const existing = await User.findOne({ email });
   if (existing) {
@@ -152,15 +159,17 @@ async function seedDemo(branchesByCode) {
       existing.passwordHash = passwordHash;
       // Older demo members had no member number, so they couldn't be scanned.
       if (!existing.memberNo) {
-        const seq = await nextSequence(`member-${d.code}`);
-        existing.memberNo = formatMemberNo(d.code, d.batchYear, seq);
+        const realCode = branchesByCode[d.code].code;
+        const seq = await nextSequence(`member-${realCode}`);
+        existing.memberNo = formatMemberNo(realCode, d.batchYear, seq);
       }
       await existing.save();
       continue;
     }
-    const seq = await nextSequence(`member-${d.code}`);
+    const realCode = branchesByCode[d.code].code;
+    const seq = await nextSequence(`member-${realCode}`);
     await User.create({
-      memberNo: formatMemberNo(d.code, d.batchYear, seq),
+      memberNo: formatMemberNo(realCode, d.batchYear, seq),
       email: d.email,
       passwordHash,
       fullName: d.fullName,

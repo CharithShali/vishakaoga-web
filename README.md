@@ -1,6 +1,6 @@
 # vishakaoga-web
 
-Website for the **Vishaka Vidyalaya Old Girls' Association (OGA)**, with three branches:
+Website for the **Old Girls' Association (OGA) of Vishaka Balika Vidyalaya, Bandarawela**. One school; the OGA has three branches:
 Bandarawela (BDW), Colombo (COL) and Kandy (KDY).
 
 **Stack:** React (Vite) · Express · MongoDB Atlas · Cloudinary (photos, from step 2).

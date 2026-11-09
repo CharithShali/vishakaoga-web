@@ -40,7 +40,7 @@ export default function EventsPage() {
         <div>
           <h1>Events</h1>
           <p className="muted">
-            Events at your branch and joint events for all three cities. Your QR card works at every one.
+            Events at your branch and joint events for all three branches. Your QR card works at every one.
           </p>
         </div>
         <div className="row-actions">

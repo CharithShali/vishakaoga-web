@@ -57,7 +57,7 @@ export default function CardPage() {
     <div className="container page card-page">
       <div className="no-print">
         <h1>Your membership card</h1>
-        <p className="muted">Show it at events in any of the three cities.</p>
+        <p className="muted">Show it at events in any of the three branches.</p>
       </div>
 
       <div className="card-page-row">

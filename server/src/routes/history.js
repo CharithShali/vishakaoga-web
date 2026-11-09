@@ -27,6 +27,7 @@ function present({ history, branches }, user) {
       storyTitle: h.storyTitle || '',
       story: h.story || '',
       motto: h.motto || '',
+      firstBatchYear: h.firstBatchYear || null,
       mottoMeaning: h.mottoMeaning || '',
       timeline: h.timeline || [],
       committeeTerm: h.committeeTerm || '',
@@ -66,6 +67,10 @@ const historySchema = z.object({
   storyTitle: text(200),
   story: text(6000),
   motto: text(200),
+  firstBatchYear: z.preprocess(
+    (v) => (v === '' || v == null ? null : v),
+    z.coerce.number().int().min(1850, 'Check the first batch year').max(2100).nullable()
+  ),
   mottoMeaning: text(400),
   timeline: z.array(z.object({ year: text(20), title: text(200), text: text(1500) })).max(80).default([]),
   committeeTerm: text(40),

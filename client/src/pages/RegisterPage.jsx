@@ -59,8 +59,6 @@ export default function RegisterPage() {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setForm((f) => ({ ...f, profession: { ...f.profession, [key]: value } }));
   };
-  const otherBranchField = (key) => (e) =>
-    setForm((f) => ({ ...f, otherBranch: { ...f.otherBranch, [key]: e.target.value } }));
   const toggleRole = (role) =>
     setForm((f) => ({
       ...f,
@@ -70,7 +68,7 @@ export default function RegisterPage() {
     }));
 
   function check() {
-    if (!form.branch) return 'Choose the branch you studied at.';
+    if (!form.branch) return 'Choose your OGA branch.';
     if (!photoBlob) return 'Add a photo for your membership card.';
     if (form.password.length < 8) return 'Use at least 8 characters for your password.';
     if (form.password !== form.confirmPassword) return 'The two passwords are different.';
@@ -144,8 +142,9 @@ export default function RegisterPage() {
         <fieldset className="card fieldset">
           <legend>Your branch *</legend>
           <p className="muted small">
-            Which branch of the school did you study at? Your batch, class list and coordinator
-            all belong to this branch.
+            Which branch of the OGA do you want to join? Choose the one closest to where you live or
+            where you want to take part. Your branch coordinator approves your registration, and your
+            branch's events and news are shown to you first.
           </p>
           <div className="branch-picker">
             {branches.map((b) => (
@@ -156,28 +155,6 @@ export default function RegisterPage() {
               </label>
             ))}
           </div>
-          <label className="check">
-            <input type="checkbox" checked={form.otherBranchOn} onChange={field('otherBranchOn')} />
-            I also studied at another branch
-          </label>
-          {form.otherBranchOn && (
-            <div className="grid-fields">
-              <label className="field">
-                Other branch
-                <select value={form.otherBranch.branch} onChange={otherBranchField('branch')}>
-                  <option value="">Choose a branch</option>
-                  {branches.filter((b) => b._id !== form.branch).map((b) => (
-                    <option key={b._id} value={b._id}>{b.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                Years there
-                <input type="text" placeholder="e.g. Grade 1 to 5" value={form.otherBranch.years}
-                  onChange={otherBranchField('years')} />
-              </label>
-            </div>
-          )}
         </fieldset>
 
         {/* ---- About you ---- */}
@@ -266,7 +243,7 @@ export default function RegisterPage() {
 
         {/* ---- School years ---- */}
         <fieldset className="card fieldset">
-          <legend>Your school years{branch ? ` at ${branch.name}` : ''}</legend>
+          <legend>Your school years</legend>
           <div className="grid-fields">
             <label className="field">
               Year joined school

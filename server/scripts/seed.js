@@ -49,7 +49,7 @@ async function seedFunds() {
   if (await Fund.exists({})) return;
   await Fund.create([
     { name: 'General fund', description: 'Events, meetings and running costs of the association.', order: 1 },
-    { name: 'Scholarship fund', description: 'Support for students at all three branches who need help.', order: 2 },
+    { name: 'Scholarship fund', description: 'Support for students of the school who need help.', order: 2 },
     { name: 'School project fund', description: 'The current school project. Edit this to describe it.', order: 3 },
   ]);
   console.log('Funds created: General, Scholarship, School project');
@@ -306,11 +306,11 @@ async function seedDemo(branchesByCode) {
       demo: true,
       storyTitle: 'Sample story: replace with the real one',
       story:
-        'This is sample text so you can see how the history page looks. The central Secretary or the main admin replaces it with "Edit this page".\n\nAdd two or three short paragraphs on how the school began and grew into three branches.',
+        'This is sample text so you can see how the history page looks. The central Secretary or the main admin replaces it with "Edit this page".\n\nAdd two or three short paragraphs on how the school began, and how the OGA and its Bandarawela, Colombo and Kandy branches started.',
       timeline: [
         { year: '[Year]', title: sample('The school is founded'), text: 'Who founded it, where, and with how many students.' },
         { year: '[Year]', title: sample('The OGA is formed'), text: 'How and by whom the association was started.' },
-        { year: '[Year]', title: sample('A new branch opens'), text: 'Where and why the branch began.' },
+        { year: '[Year]', title: sample('An OGA branch starts'), text: 'Where and why the branch began.' },
       ],
       committeeTerm: '2025–2026 (sample)',
       centralCommittee: [

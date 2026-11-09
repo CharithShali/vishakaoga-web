@@ -22,6 +22,8 @@ const historySchema = new mongoose.Schema(
     storyTitle: { type: String, default: '' },
     story: { type: String, default: '' },
     motto: { type: String, default: '' },
+    // The year the school's first students left: the batch wall starts here.
+    firstBatchYear: { type: Number, default: null },
     mottoMeaning: { type: String, default: '' },
     timeline: [
       new mongoose.Schema({ year: String, title: String, text: { type: String, default: '' } }, opts),

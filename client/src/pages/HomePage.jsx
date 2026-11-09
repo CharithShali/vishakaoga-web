@@ -30,10 +30,15 @@ export default function HomePage() {
     <>
       <section className="hero">
         <div className="container hero-inner">
-          <h1>Welcome to the Vishaka OGA</h1>
+          <h1>Welcome to the Vishaka Balika Vidyalaya, Bandarawela OGA</h1>
+          <p className="hero-tagline">One School. Three Branches. One Vishaka Family.</p>
           <p className="hero-lead">
-            One school, three cities. Whether you studied in Bandarawela, Colombo or Kandy,
-            register once and stay close to your batch and your branch.
+            If you studied at Vishaka Balika Vidyalaya, Bandarawela, you are part of one proud Vishaka
+            community, whether you are connected with the Bandarawela, Colombo or Kandy branch.
+          </p>
+          <p className="hero-lead">
+            Register once and stay connected with your batchmates, reconnect with old friends, and keep
+            in touch with fellow Vishakians across all three branches.
           </p>
           <div className="hero-actions">
             {user ? (
@@ -68,7 +73,7 @@ export default function HomePage() {
 
       <section className="container page-section">
         <p className="eyebrow">Our branches</p>
-        <h2>One school, three cities</h2>
+        <h2>One school, three branches</h2>
         {error && <p className="alert alert-error">Could not load branches: {error}</p>}
         <div className="grid grid-3">
           {branches.map((b) => {
@@ -77,7 +82,7 @@ export default function HomePage() {
             return (
               <article key={b._id} className="card branch-card">
                 {b.photoUrl ? (
-                  <img src={b.photoUrl} alt={`${b.name} school`} className="branch-photo" loading="lazy" />
+                  <img src={b.photoUrl} alt={`${b.name} branch`} className="branch-photo" loading="lazy" />
                 ) : (
                   <div className="branch-photo branch-photo-empty" aria-hidden="true">{b.name}</div>
                 )}

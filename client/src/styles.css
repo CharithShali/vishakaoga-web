@@ -715,3 +715,7 @@ section > .row-card + .row-card { margin-top: 14px; }
 /* School badge on the membership card */
 .mc-badge { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--gold); flex: none; }
 @media print { .mc-badge { width: 5.5mm; height: 5.5mm; box-shadow: 0 0 0 0.3mm var(--gold); } }
+
+.hero-tagline { font-family: var(--serif); font-size: 24px; color: var(--gold-soft); margin: 4px 0 14px; }
+.hero .hero-lead + .hero-lead { margin-top: -6px; }
+@media (max-width: 640px) { .hero-tagline { font-size: 20px; } }

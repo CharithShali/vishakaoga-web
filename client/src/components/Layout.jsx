@@ -76,7 +76,7 @@ export default function Layout() {
 
       <footer className="site-footer">
         <div className="container footer-row">
-          <span>Vishaka Vidyalaya OGA · Bandarawela · Colombo · Kandy</span>
+          <span>Vishaka Balika Vidyalaya, Bandarawela OGA · Bandarawela · Colombo · Kandy branches</span>
           <span>
             <Link to="/batches">Batch wall</Link> · <Link to="/history">Our story</Link> · Questions? Contact your branch coordinator.
           </span>

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Website for the Vishaka Vidyalaya Old Girls' Association (OGA)",
+  "description": "Website for the Old Girls' Association (OGA) of Vishaka Balika Vidyalaya, Bandarawela",
   "workspaces": [
     "server",
     "client"

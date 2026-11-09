@@ -18,9 +18,23 @@ export default function BatchWallPage() {
     api('/batches').then(setData).catch((e) => setError(e.message));
   }, []);
 
-  const branchId = params.get('branch') || data?.branches[0]?._id || '';
+  // "All branches" first: everyone went to the same school, so a batch is the whole school's.
+  const tabs = useMemo(() => {
+    if (!data) return [];
+    const counts = {};
+    for (const b of data.branches) for (const [y, n] of Object.entries(b.counts)) counts[y] = (counts[y] || 0) + n;
+    const all = {
+      _id: 'all',
+      name: 'All branches',
+      from: Math.min(...data.branches.map((b) => b.from), data.thisYear),
+      to: data.thisYear,
+      counts,
+    };
+    return [all, ...data.branches];
+  }, [data]);
+  const branchId = params.get('branch') || 'all';
   const year = Number(params.get('year')) || null;
-  const branch = data?.branches.find((b) => b._id === branchId);
+  const branch = tabs.find((b) => b._id === branchId) || tabs[0];
 
   const decades = useMemo(() => {
     if (!branch) return [];
@@ -61,13 +75,14 @@ export default function BatchWallPage() {
       <p className="eyebrow">The batch wall</p>
       <h1>Find your batch</h1>
       <p className="muted lead-narrow">
-        Choose your branch, then tap your year to see who has joined. The empty years are batches
-        we haven't found yet: if you know someone from one, ask her to register.
+        Tap the year you left school to see who from your batch has joined, from all branches or
+        just yours. The empty years are batches we haven't found yet: if you know someone from one,
+        ask her to register.
       </p>
 
       <div className="tabs tabs-bar" role="group" aria-label="Branch">
-        {data.branches.map((b) => (
-          <button key={b._id} type="button" className={b._id === branchId ? 'tab active' : 'tab'}
+        {tabs.map((b) => (
+          <button key={b._id} type="button" className={b._id === branch?._id ? 'tab active' : 'tab'}
             onClick={() => choose({ branch: b._id, year: '' })}>{b.name}</button>
         ))}
       </div>
@@ -136,12 +151,12 @@ function BatchPanel({ branch, year, count, loggedIn }) {
 
   return (
     <>
-      <p className="eyebrow">{branch.name}</p>
+      <p className="eyebrow">{branch._id === 'all' ? 'All branches' : `${branch.name} branch`}</p>
       <h2>Batch {year}</h2>
       {count === 0 ? (
         <>
           <p>Nobody from this batch has joined yet.</p>
-          <p className="muted small">Know someone who left {branch.name} in {year}? Send her the link to register.</p>
+          <p className="muted small">Know someone who left school in {year}? Send her the link to register.</p>
           <Link to="/register" className="btn btn-gold btn-small">Registration page</Link>
         </>
       ) : !loggedIn ? (
@@ -163,7 +178,7 @@ function BatchPanel({ branch, year, count, loggedIn }) {
                 <span className="muted small"> (at school: {m.nameAtSchool})</span>
               )}
               <div className="muted small">
-                {[m.lastClass && `Class ${m.lastClass}`, m.house && `${m.house} house`, m.currentCity && `Lives in ${m.currentCity}`, m.profession]
+                {[branch._id === 'all' && m.branch && `${m.branch} branch`, m.lastClass && `Class ${m.lastClass}`, m.house && `${m.house} house`, m.currentCity && `Lives in ${m.currentCity}`, m.profession]
                   .filter(Boolean)
                   .join(' · ')}
               </div>

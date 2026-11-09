@@ -39,9 +39,9 @@ export default function HistoryPage() {
       <section className="hero history-hero">
         <div className="container hero-inner">
           <p className="eyebrow eyebrow-light">Our story</p>
-          <h1>{h.storyTitle || 'One school, three cities'}</h1>
+          <h1>{h.storyTitle || 'One School. Three Branches. One Vishaka Family.'}</h1>
           {h.story ? <RichText text={h.story} className="rich-text hero-lead" /> : (
-            <p className="hero-lead">The story of Vishaka and the friendships that never ended.</p>
+            <p className="hero-lead">The story of Vishaka Balika Vidyalaya, Bandarawela, and the friendships that never ended.</p>
           )}
           {h.motto && (
             <figure className="motto">
@@ -84,12 +84,12 @@ export default function HistoryPage() {
 
         <section className="history-section">
           <p className="eyebrow">Our branches</p>
-          <h2>Three cities, one school</h2>
+          <h2>Three branches, one Vishaka family</h2>
           <div className="grid grid-3">
             {branches.map((b) => (
               <article key={b._id} className="card branch-story">
                 {b.photoUrl ? (
-                  <img src={b.photoUrl} alt={`${b.name} school`} className="branch-photo" loading="lazy" />
+                  <img src={b.photoUrl} alt={`${b.name} branch`} className="branch-photo" loading="lazy" />
                 ) : (
                   <div className="branch-photo branch-photo-empty" aria-hidden="true">{b.name}</div>
                 )}
@@ -97,7 +97,7 @@ export default function HistoryPage() {
                 {b.foundedYear && <p className="eyebrow">Since {b.foundedYear}</p>}
                 {(b.address || b.principal) && (
                   <p className="muted small">
-                    {[b.address, b.principal && `Principal ${b.principal}`].filter(Boolean).join(' · ')}
+                    {[b.address, b.principal && `Branch president: ${b.principal}`].filter(Boolean).join(' · ')}
                   </p>
                 )}
                 {b.about && <RichText text={b.about} />}

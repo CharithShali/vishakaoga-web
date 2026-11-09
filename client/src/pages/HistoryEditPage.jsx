@@ -93,6 +93,12 @@ export default function HistoryEditPage() {
             <span className="field-label">The story <span className="muted small">(two or three short paragraphs)</span></span>
             <textarea rows="5" value={form.story} onChange={text('story')} />
           </label>
+          <label className="field narrow-field">
+            First batch (year)
+            <input type="number" value={form.firstBatchYear || ''} placeholder="e.g. 1950"
+              onChange={(e) => setForm((f) => ({ ...f, firstBatchYear: e.target.value }))} />
+            <span className="muted small">The year the school's first students left. The batch wall starts here.</span>
+          </label>
           <div className="grid-fields">
             <label className="field">
               School motto
@@ -128,11 +134,11 @@ export default function HistoryEditPage() {
               <h3>{b.name}</h3>
               <div className="grid-fields">
                 <label className="field">
-                  Since (year)
+                  Branch started (year)
                   <input type="number" value={b.foundedYear} onChange={(e) => setBranch(i, { foundedYear: e.target.value })} />
                 </label>
                 <label className="field">
-                  Principal
+                  Branch president
                   <input type="text" value={b.principal} onChange={(e) => setBranch(i, { principal: e.target.value })} />
                 </label>
               </div>
@@ -141,16 +147,13 @@ export default function HistoryEditPage() {
                 <input type="text" value={b.address} onChange={(e) => setBranch(i, { address: e.target.value })} />
               </label>
               <label className="field">
-                <span className="field-label">About this branch <span className="muted small">(houses, traditions…)</span></span>
+                <span className="field-label">About this branch <span className="muted small">(when it started, what it does…)</span></span>
                 <textarea rows="2" value={b.about} onChange={(e) => setBranch(i, { about: e.target.value })} />
               </label>
               <div className="field">
-                Photo of the school
+                Branch photo <span className="muted small">(e.g. a get-together)</span>
                 <Picker shape="wide" value={b.photo} onChange={(photo) => setBranch(i, { photo })} />
               </div>
-              <p className="muted small">
-                The batch wall starts at the "since" year.
-              </p>
             </div>
           ))}
         </section>

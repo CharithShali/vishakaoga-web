@@ -4,16 +4,6 @@ import { isCommittee } from '../auth/permissions.js';
 import { usePendingCount } from '../hooks/usePendingCount.js';
 import { useUnreadCount } from '../hooks/useUnreadCount.js';
 
-function Crest() {
-  return (
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" />
-      <path d="M8 11l3 3 5-6" />
-    </svg>
-  );
-}
-
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -30,7 +20,8 @@ export default function Layout() {
       <header className="site-header">
         <div className="container header-row">
           <Link to="/" className="brand">
-            <span className="brand-crest"><Crest /></span>
+            {/* The school flag (client/public/flag.png) */}
+            <img src="/flag.png" alt="" className="brand-flag" width="50" height="40" />
             <span className="brand-text">
               <span className="brand-name">Vishaka OGA</span>
               <span className="brand-sub">Bandarawela · Colombo · Kandy</span>

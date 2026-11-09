@@ -57,7 +57,7 @@ a:hover { color: var(--gold-text); }
 }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ivory); }
 .brand:hover { color: var(--ivory); }
-.brand-crest { color: var(--gold); display: flex; }
+.brand-flag { display: block; width: auto; height: 40px; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); }
 .brand-text { display: flex; flex-direction: column; }
 .brand-name { font-family: var(--serif); font-size: 21px; font-weight: 700; }
 .brand-sub { font-size: 13px; color: var(--gold-soft); }
